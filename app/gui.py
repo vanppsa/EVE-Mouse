@@ -45,7 +45,7 @@ class EveMouseWindow(Gtk.ApplicationWindow):
         title.set_margin_bottom(4)
         main_box.append(title)
 
-        subtitle = Gtk.Label(label="Controle remoto de mouse e teclado")
+        subtitle = Gtk.Label(label="Remote mouse and keyboard control")
         subtitle.add_css_class("subtitle")
         subtitle.set_margin_bottom(20)
         main_box.append(subtitle)
@@ -59,25 +59,25 @@ class EveMouseWindow(Gtk.ApplicationWindow):
         main_box.append(settings_box)
 
         self._sw_background = self._add_switch(
-            settings_box, "Manter em segundo plano",
-            "Servidor continua rodando ao fechar a janela"
+            settings_box, "Keep in background",
+            "Server keeps running when window is closed"
         )
 
         self._sw_single_session = self._add_switch(
-            settings_box, "Sessão única",
-            "Token expira ao fechar o aplicativo"
+            settings_box, "Single session",
+            "Token expires when app is closed"
         )
 
         self._sw_single_session.connect("notify::active", self._on_session_mode_changed)
 
         timeout_row = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=8)
         timeout_row.set_margin_top(4)
-        timeout_lbl = Gtk.Label(label="Expiração da sessão (min):")
+        timeout_lbl = Gtk.Label(label="Session expiry (min):")
         timeout_lbl.set_xalign(0)
         timeout_lbl.set_size_request(170, -1)
         timeout_row.append(timeout_lbl)
         self._timeout_entry = Gtk.Entry()
-        self._timeout_entry.set_placeholder_text("0 = sem limite")
+        self._timeout_entry.set_placeholder_text("0 = no limit")
         self._timeout_entry.set_width_chars(6)
         self._timeout_entry.set_max_length(5)
         self._timeout_entry.set_hexpand(True)
@@ -93,18 +93,18 @@ class EveMouseWindow(Gtk.ApplicationWindow):
         auth_box.set_margin_bottom(16)
         main_box.append(auth_box)
 
-        pw_lbl = Gtk.Label(label="Senha de acesso:")
+        pw_lbl = Gtk.Label(label="Access password:")
         pw_lbl.set_xalign(0)
         pw_lbl.add_css_class("heading")
         auth_box.append(pw_lbl)
 
         self._pw_entry = Gtk.Entry()
         self._pw_entry.set_visibility(False)
-        self._pw_entry.set_placeholder_text("Defina uma senha")
+        self._pw_entry.set_placeholder_text("Set a password")
         self._pw_entry.set_margin_top(4)
         auth_box.append(self._pw_entry)
 
-        self._pw_toggle = Gtk.Button(label="Mostrar senha")
+        self._pw_toggle = Gtk.Button(label="Show password")
         self._pw_toggle.add_css_class("flat")
         self._pw_toggle.set_margin_top(2)
         self._pw_toggle.connect("clicked", self._on_toggle_password)
@@ -118,7 +118,7 @@ class EveMouseWindow(Gtk.ApplicationWindow):
         url_box.set_margin_bottom(16)
         main_box.append(url_box)
 
-        url_lbl = Gtk.Label(label="URL de acesso:")
+        url_lbl = Gtk.Label(label="Access URL:")
         url_lbl.set_xalign(0)
         url_lbl.add_css_class("heading")
         url_box.append(url_lbl)
@@ -133,7 +133,7 @@ class EveMouseWindow(Gtk.ApplicationWindow):
         self._url_label.set_ellipsize(Pango.EllipsizeMode.MIDDLE)
         url_row.append(self._url_label)
 
-        copy_btn = Gtk.Button(label="Copiar")
+        copy_btn = Gtk.Button(label="Copy")
         copy_btn.add_css_class("pill")
         copy_btn.connect("clicked", self._on_copy_url)
         url_row.append(copy_btn)
@@ -143,7 +143,7 @@ class EveMouseWindow(Gtk.ApplicationWindow):
         spacer.set_vexpand(True)
         main_box.append(spacer)
 
-        self._start_btn = Gtk.Button(label="Iniciar")
+        self._start_btn = Gtk.Button(label="Start")
         self._start_btn.add_css_class("suggested-action")
         self._start_btn.set_size_request(-1, 44)
         self._start_btn.connect("clicked", self._on_toggle_server)
@@ -178,7 +178,7 @@ class EveMouseWindow(Gtk.ApplicationWindow):
     def _on_toggle_password(self, _btn):
         visible = self._pw_entry.get_visibility()
         self._pw_entry.set_visibility(not visible)
-        self._pw_toggle.set_label("Ocultar senha" if not visible else "Mostrar senha")
+        self._pw_toggle.set_label("Hide password" if not visible else "Show password")
 
     def _on_session_mode_changed(self, switch, _pspec):
         active = switch.get_active()
@@ -187,12 +187,12 @@ class EveMouseWindow(Gtk.ApplicationWindow):
     def _on_copy_url(self, _btn):
         clipboard = Gdk.Display.get_default().get_clipboard()
         clipboard.set_text(get_url(PORT))
-        self._start_btn.set_label("URL copiada!")
+        self._start_btn.set_label("URL copied!")
         def reset_label():
             if self._server_running:
-                self._start_btn.set_label("Parar")
+                self._start_btn.set_label("Stop")
             else:
-                self._start_btn.set_label("Iniciar")
+                self._start_btn.set_label("Start")
             return GLib.SOURCE_REMOVE
         GLib.timeout_add_seconds(2, reset_label)
 
@@ -230,7 +230,7 @@ class EveMouseWindow(Gtk.ApplicationWindow):
         self._server_running = True
 
         self._url_label.set_label(get_url(PORT))
-        self._start_btn.set_label("Parar")
+        self._start_btn.set_label("Stop")
         self._start_btn.remove_css_class("suggested-action")
         self._start_btn.add_css_class("destructive-action")
 
@@ -239,7 +239,7 @@ class EveMouseWindow(Gtk.ApplicationWindow):
         if auth.session_mode == "single":
             auth.invalidate_all_sessions()
         self._server_running = False
-        self._start_btn.set_label("Iniciar")
+        self._start_btn.set_label("Start")
         self._start_btn.remove_css_class("destructive-action")
         self._start_btn.add_css_class("suggested-action")
 
@@ -260,7 +260,7 @@ class EveMouseWindow(Gtk.ApplicationWindow):
             self._timeout_entry.set_text(str(int(timeout)))
         if self._cfg.get("password_hash"):
             auth.password_hash = self._cfg["password_hash"]
-            self._pw_entry.set_placeholder_text("Senha já configurada")
+            self._pw_entry.set_placeholder_text("Password already set")
 
 
 def run_gui():
