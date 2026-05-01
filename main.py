@@ -1,8 +1,14 @@
 import logging
 import sys
 import os
+import ctypes
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
+try:
+    ctypes.CDLL("libc.so.6").prctl(15, b"EVE-Mouse", 0, 0, 0)
+except Exception:
+    pass
 
 logging.basicConfig(
     level=logging.INFO,

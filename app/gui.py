@@ -1,9 +1,12 @@
+import os
+import sys
 import threading
 import logging
+from pathlib import Path
 
 import gi
 gi.require_version("Gtk", "4.0")
-from gi.repository import Gtk, Gdk, Gio, GLib
+from gi.repository import Gtk, Gdk, Gio, GLib, Pango
 
 from app.config import load_config, save_config, get_url
 from app import auth, input_ctrl
@@ -12,6 +15,37 @@ logger = logging.getLogger("eve-mouse")
 
 PORT = 10101
 APP_TITLE = "EVE-Mouse"
+PID_FILE = Path.home() / ".config" / "EVE-Mouse" / "app.pid"
+
+
+def _clean_stale_pid():
+    if not PID_FILE.exists():
+        return
+    try:
+        old_pid = int(PID_FILE.read_text().strip())
+        os.kill(old_pid, 0)
+    except ProcessLookupError:
+        try:
+            PID_FILE.unlink()
+        except FileNotFoundError:
+            pass
+    except (ValueError, PermissionError):
+        try:
+            PID_FILE.unlink()
+        except FileNotFoundError:
+            pass
+
+
+def _write_pid():
+    PID_FILE.parent.mkdir(parents=True, exist_ok=True)
+    PID_FILE.write_text(str(os.getpid()))
+
+
+def _remove_pid():
+    try:
+        PID_FILE.unlink()
+    except FileNotFoundError:
+        pass
 
 
 class EveMouseWindow(Gtk.ApplicationWindow):
@@ -26,6 +60,7 @@ class EveMouseWindow(Gtk.ApplicationWindow):
         )
         self._server_thread = None
         self._server_running = False
+        self._uvicorn_server = None
         self._cfg = load_config()
 
         self._build_ui()
@@ -58,6 +93,11 @@ class EveMouseWindow(Gtk.ApplicationWindow):
         settings_box.set_margin_top(16)
         settings_box.set_margin_bottom(16)
         main_box.append(settings_box)
+
+        self._sw_keep_background = self._add_switch(
+            settings_box, "Keep in background",
+            "Continue running server when window is closed"
+        )
 
         self._sw_single_session = self._add_switch(
             settings_box, "Single session",
@@ -218,12 +258,12 @@ class EveMouseWindow(Gtk.ApplicationWindow):
 
         input_ctrl.init_devices()
 
-        def run_server():
-            uvicorn.run(fastapi_app, host="0.0.0.0", port=PORT, log_level="warning")
-
-        self._server_thread = threading.Thread(target=run_server, daemon=True)
+        config = uvicorn.Config(fastapi_app, host="0.0.0.0", port=PORT, log_level="warning")
+        self._uvicorn_server = uvicorn.Server(config)
+        self._server_thread = threading.Thread(target=self._uvicorn_server.run, daemon=True)
         self._server_thread.start()
         self._server_running = True
+        self.get_application().hold()
 
         self._url_label.set_label(get_url(PORT))
         self._start_btn.set_label("Stop")
@@ -233,26 +273,52 @@ class EveMouseWindow(Gtk.ApplicationWindow):
         self._show_notification()
 
     def _stop_server(self):
+        if not self._server_running:
+            return
+        if self._uvicorn_server:
+            self._uvicorn_server.should_exit = True
         input_ctrl.destroy_devices()
         if auth.session_mode == "single":
             auth.invalidate_all_sessions()
         self._server_running = False
+        self.get_application().release()
         self._start_btn.set_label("Start")
         self._start_btn.remove_css_class("destructive-action")
         self._start_btn.add_css_class("suggested-action")
 
     def _on_close_request(self, _window):
-        self.hide()
-        return True
+        if self._server_running and self._sw_keep_background.get_active():
+            self.hide()
+            return True
+        if self._server_running:
+            self._stop_server()
+        self.get_application().quit()
+        return False
+
+    def _show_restore_dialog(self, restart_callback):
+        dialog = Gtk.AlertDialog()
+        dialog.set_message("EVE-Mouse is running in background")
+        dialog.set_detail(f"Server active at: {get_url(PORT)}")
+        dialog.set_buttons(["Restore", "New Instance"])
+
+        def on_response(source, result, user_data):
+            choice = source.choose_finish(result)
+            if choice == 1:
+                GLib.idle_add(restart_callback)
+
+        dialog.choose(self, None, on_response, None)
 
     def _save_current_config(self):
         self._cfg["password_hash"] = auth.password_hash
         self._cfg["session_mode"] = "single" if self._sw_single_session.get_active() else "persistent"
+        self._cfg["keep_background"] = self._sw_keep_background.get_active()
         timeout_str = self._timeout_entry.get_text().strip()
         self._cfg["session_timeout_minutes"] = float(timeout_str) if timeout_str and timeout_str != "0" else 0
         save_config(self._cfg)
 
     def _load_config_to_ui(self):
+        if self._cfg.get("keep_background"):
+            self._sw_keep_background.set_active(True)
         if self._cfg.get("session_mode") == "single":
             self._sw_single_session.set_active(True)
             self._timeout_entry.set_sensitive(False)
@@ -264,16 +330,70 @@ class EveMouseWindow(Gtk.ApplicationWindow):
             self._pw_entry.set_placeholder_text("Password saved")
 
     def _show_notification(self):
-        notif = Gio.Notification.new(get_url(PORT))
-        notif.set_title("EVE-Mouse running")
+        notif = Gio.Notification.new("EVE-Mouse running")
         notif.set_body(f"Access at: {get_url(PORT)}")
         notif.set_icon_name("input-mouse-symbolic")
-        notif.set_priority(Gio.NotificationPriority.NORMAL)
-        notif.set_urgency(Gio.NotificationUrgency.NORMAL)
-        notif.show()
+        self.get_application().send_notification("eve-mouse-server", notif)
 
 
 def run_gui():
+    _clean_stale_pid()
+
     app = Gtk.Application(application_id="com.eve.mouse")
-    app.connect("activate", lambda a: EveMouseWindow(a).present())
+    window = None
+    _restart = False
+
+    def on_startup(a):
+        _write_pid()
+
+        stop_action = Gio.SimpleAction.new("stop-server", None)
+        stop_action.connect("activate", lambda _a, _p: _do_stop())
+        a.add_action(stop_action)
+
+        quit_action = Gio.SimpleAction.new("quit", None)
+        quit_action.connect("activate", lambda _a, _p: _do_quit())
+        a.add_action(quit_action)
+
+    def on_activate(a):
+        nonlocal window
+        if window is None:
+            window = EveMouseWindow(a)
+            window.present()
+            return
+
+        was_hidden = not window.get_visible()
+        window.present()
+
+        if was_hidden and window._server_running:
+            GLib.idle_add(lambda: window._show_restore_dialog(_do_restart))
+
+    def on_shutdown(a):
+        if window and window._server_running:
+            window._server_running = False
+            if window._uvicorn_server:
+                window._uvicorn_server.should_exit = True
+            input_ctrl.destroy_devices()
+        _remove_pid()
+
+    def _do_stop():
+        if window and window._server_running:
+            window._stop_server()
+            window.present()
+
+    def _do_quit():
+        nonlocal _restart
+        _restart = False
+        app.quit()
+
+    def _do_restart():
+        nonlocal _restart
+        _restart = True
+        app.quit()
+
+    app.connect("startup", on_startup)
+    app.connect("activate", on_activate)
+    app.connect("shutdown", on_shutdown)
     app.run()
+
+    if _restart:
+        os.execv(sys.executable, [sys.executable] + sys.argv)

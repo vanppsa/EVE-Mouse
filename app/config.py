@@ -12,6 +12,7 @@ DEFAULTS = {
     "session_mode": "persistent",
     "session_timeout_minutes": 0,
     "trackpad_sensitivity": 1.5,
+    "keep_background": False,
 }
 
 
