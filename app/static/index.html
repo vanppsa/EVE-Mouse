@@ -359,55 +359,49 @@ document.getElementById('btnRight').addEventListener('touchstart', (e) => {
 }, { passive: false });
 
 const textInput = document.getElementById('textInput');
-let imeBuffer = '';
+let imeActive = false;
 
 textInput.addEventListener('compositionstart', () => {
-    imeBuffer = '';
-});
-
-textInput.addEventListener('compositionupdate', (e) => {
-    imeBuffer = e.data || '';
+    imeActive = true;
 });
 
 textInput.addEventListener('compositionend', (e) => {
-    if (e.data) {
-        send({ type: 'keydown', text: e.data });
+    imeActive = false;
+    const newVal = textInput.value;
+    if (newVal.length > prevInputText.length) {
+        const diff = newVal.slice(prevInputText.length);
+        if (diff) send({ type: 'keydown', text: diff });
+    } else if (newVal.length < prevInputText.length) {
+        const count = prevInputText.length - newVal.length;
+        for (let i = 0; i < count; i++) send({ type: 'special_key', key: 'backspace' });
     }
-    imeBuffer = '';
-    textInput.value = '';
-    prevInputText = '';
+    prevInputText = newVal;
 });
 
 textInput.addEventListener('input', (e) => {
-    if (imeBuffer) return;
-    if (e.data) {
-        send({ type: 'keydown', text: e.data });
-        textInput.value = '';
-        prevInputText = '';
-    } else if (textInput.value.length > 0 && textInput.value !== prevInputText) {
-        const diff = textInput.value.slice(prevInputText.length);
-        if (diff) {
-            send({ type: 'keydown', text: diff });
-        }
-        textInput.value = '';
-        prevInputText = '';
-    } else if (textInput.value.length < prevInputText.length) {
-        send({ type: 'special_key', key: 'backspace' });
-        prevInputText = textInput.value;
+    if (imeActive) return;
+    const cur = textInput.value;
+    const prev = prevInputText;
+
+    if (cur.length > prev.length) {
+        const diff = cur.slice(prev.length);
+        if (diff) send({ type: 'keydown', text: diff });
+    } else if (cur.length < prev.length) {
+        const count = prev.length - cur.length;
+        for (let i = 0; i < count; i++) send({ type: 'special_key', key: 'backspace' });
+    } else if (cur !== prev && cur.length > 0) {
+        if (cur.length === prev.length) send({ type: 'special_key', key: 'backspace' });
+        if (cur) send({ type: 'keydown', text: cur });
     }
+    prevInputText = cur;
 });
 
 textInput.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' && !imeBuffer) {
+    if (e.key === 'Enter' && !imeActive) {
         e.preventDefault();
-        const val = textInput.value.trim();
-        if (val) {
-            send({ type: 'keydown', text: val });
-            textInput.value = '';
-            prevInputText = '';
-        } else {
-            send({ type: 'special_key', key: 'enter' });
-        }
+        send({ type: 'special_key', key: 'enter' });
+        textInput.value = '';
+        prevInputText = '';
     }
 });
 
