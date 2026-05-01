@@ -16,6 +16,8 @@ APP_TITLE = "EVE-Mouse"
 _has_indicator = False
 _indicator = None
 
+_window = None
+
 try:
     gi.require_version("AppIndicator3", "0.1")
     from gi.repository import AppIndicator3
@@ -34,6 +36,8 @@ class EveMouseWindow(Gtk.ApplicationWindow):
             default_height=580,
             resizable=False,
         )
+        global _window
+        _window = self
         self._server_thread = None
         self._server_running = False
         self._cfg = load_config()
@@ -172,7 +176,7 @@ class EveMouseWindow(Gtk.ApplicationWindow):
         global _indicator
         menu = Gtk.Menu()
         show_item = Gtk.MenuItem(label="Show EVE-Mouse")
-        show_item.connect("activate", lambda _: self.present())
+        show_item.connect("activate", lambda _: _window.present() if _window else None)
         menu.append(show_item)
         quit_item = Gtk.MenuItem(label="Quit")
         quit_item.connect("activate", lambda _: self._force_quit())
@@ -318,5 +322,12 @@ class EveMouseWindow(Gtk.ApplicationWindow):
 
 def run_gui():
     app = Gtk.Application(application_id="com.eve.mouse")
-    app.connect("activate", lambda a: EveMouseWindow(a).present())
+
+    def on_activate(a):
+        global _window
+        if _window is None:
+            _window = EveMouseWindow(a)
+        _window.present()
+
+    app.connect("activate", on_activate)
     app.run()
