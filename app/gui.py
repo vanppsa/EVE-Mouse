@@ -3,7 +3,7 @@ import logging
 
 import gi
 gi.require_version("Gtk", "4.0")
-from gi.repository import Gtk, Gdk, Gio, GLib, Pango
+from gi.repository import Gtk, Gdk, Gio, GLib
 
 from app.config import load_config, save_config, get_url
 from app import auth, input_ctrl
@@ -13,18 +13,6 @@ logger = logging.getLogger("eve-mouse")
 PORT = 10101
 APP_TITLE = "EVE-Mouse"
 
-_has_indicator = False
-_indicator = None
-
-_window = None
-
-try:
-    gi.require_version("AppIndicator3", "0.1")
-    from gi.repository import AppIndicator3
-    _has_indicator = True
-except (ValueError, ImportError):
-    logger.info("AppIndicator3 not available, system tray disabled")
-
 
 class EveMouseWindow(Gtk.ApplicationWindow):
 
@@ -33,17 +21,14 @@ class EveMouseWindow(Gtk.ApplicationWindow):
             application=app,
             title=APP_TITLE,
             default_width=380,
-            default_height=580,
+            default_height=560,
             resizable=False,
         )
-        global _window
-        _window = self
         self._server_thread = None
         self._server_running = False
         self._cfg = load_config()
 
         self._build_ui()
-        self._build_indicator()
         self._load_config_to_ui()
         self.connect("close-request", self._on_close_request)
 
@@ -73,11 +58,6 @@ class EveMouseWindow(Gtk.ApplicationWindow):
         settings_box.set_margin_top(16)
         settings_box.set_margin_bottom(16)
         main_box.append(settings_box)
-
-        self._sw_background = self._add_switch(
-            settings_box, "Keep in background",
-            "Server keeps running when window is closed"
-        )
 
         self._sw_single_session = self._add_switch(
             settings_box, "Single session",
@@ -126,10 +106,6 @@ class EveMouseWindow(Gtk.ApplicationWindow):
         self._pw_toggle.connect("clicked", self._on_toggle_password)
         auth_box.append(self._pw_toggle)
 
-        self._chk_remember = Gtk.CheckButton(label="Remember password")
-        self._chk_remember.set_margin_top(4)
-        auth_box.append(self._chk_remember)
-
         sep3 = Gtk.Separator(orientation=Gtk.Orientation.HORIZONTAL)
         main_box.append(sep3)
 
@@ -170,56 +146,28 @@ class EveMouseWindow(Gtk.ApplicationWindow):
         self._start_btn.set_margin_top(8)
         main_box.append(self._start_btn)
 
-    def _build_indicator(self):
-        if not _has_indicator:
-            return
-        global _indicator
-        menu = Gtk.Menu()
-        show_item = Gtk.MenuItem(label="Show EVE-Mouse")
-        show_item.connect("activate", lambda _: _window.present() if _window else None)
-        menu.append(show_item)
-        quit_item = Gtk.MenuItem(label="Quit")
-        quit_item.connect("activate", lambda _: self._force_quit())
-        menu.append(quit_item)
-        menu.show_all()
-        _indicator = AppIndicator3.Indicator.new(
-            "eve-mouse", "input-mouse",
-            AppIndicator3.IndicatorCategory.APPLICATION_STATUS
-        )
-        _indicator.set_status(AppIndicator3.IndicatorStatus.ACTIVE)
-        _indicator.set_menu(menu)
-
-    def _force_quit(self):
-        if self._server_running:
-            self._stop_server()
-        self.get_application().quit()
-
-    def _on_close_request(self, _window):
-        if self._sw_background.get_active() and self._server_running:
-            self.hide()
-            return True
-        if self._server_running:
-            self._stop_server()
-        return False
-
     def _add_switch(self, parent, label_text, subtitle_text):
         row = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
         row.set_margin_top(8)
+
         top_row = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=8)
         lbl = Gtk.Label(label=label_text)
         lbl.set_xalign(0)
         lbl.set_hexpand(True)
         top_row.append(lbl)
+
         sw = Gtk.Switch()
         sw.set_valign(Gtk.Align.CENTER)
         top_row.append(sw)
         row.append(top_row)
+
         if subtitle_text:
             sub = Gtk.Label(label=subtitle_text)
             sub.add_css_class("caption")
             sub.set_xalign(0)
             sub.set_margin_start(2)
             row.append(sub)
+
         parent.append(row)
         return sw
 
@@ -282,8 +230,7 @@ class EveMouseWindow(Gtk.ApplicationWindow):
         self._start_btn.remove_css_class("suggested-action")
         self._start_btn.add_css_class("destructive-action")
 
-        if _has_indicator:
-            _indicator.set_label("EVE-Mouse (running)", "")
+        self._show_notification()
 
     def _stop_server(self):
         input_ctrl.destroy_devices()
@@ -293,41 +240,40 @@ class EveMouseWindow(Gtk.ApplicationWindow):
         self._start_btn.set_label("Start")
         self._start_btn.remove_css_class("destructive-action")
         self._start_btn.add_css_class("suggested-action")
-        if _has_indicator:
-            _indicator.set_label("", "")
+
+    def _on_close_request(self, _window):
+        self.hide()
+        return True
 
     def _save_current_config(self):
         self._cfg["password_hash"] = auth.password_hash
         self._cfg["session_mode"] = "single" if self._sw_single_session.get_active() else "persistent"
         timeout_str = self._timeout_entry.get_text().strip()
         self._cfg["session_timeout_minutes"] = float(timeout_str) if timeout_str and timeout_str != "0" else 0
-        self._cfg["remember_password"] = self._chk_remember.get_active()
         save_config(self._cfg)
 
     def _load_config_to_ui(self):
-        self._sw_background.set_active(False)
         if self._cfg.get("session_mode") == "single":
             self._sw_single_session.set_active(True)
             self._timeout_entry.set_sensitive(False)
         timeout = self._cfg.get("session_timeout_minutes", 0)
         if timeout > 0:
             self._timeout_entry.set_text(str(int(timeout)))
-        self._chk_remember.set_active(self._cfg.get("remember_password", False))
-        if self._cfg.get("password_hash") and self._cfg.get("remember_password", False):
+        if self._cfg.get("password_hash"):
             auth.password_hash = self._cfg["password_hash"]
             self._pw_entry.set_placeholder_text("Password saved")
-        elif self._cfg.get("password_hash"):
-            auth.password_hash = self._cfg["password_hash"]
+
+    def _show_notification(self):
+        notif = Gio.Notification.new(get_url(PORT))
+        notif.set_title("EVE-Mouse running")
+        notif.set_body(f"Access at: {get_url(PORT)}")
+        notif.set_icon_name("input-mouse-symbolic")
+        notif.set_priority(Gio.NotificationPriority.NORMAL)
+        notif.set_urgency(Gio.NotificationUrgency.NORMAL)
+        notif.show()
 
 
 def run_gui():
     app = Gtk.Application(application_id="com.eve.mouse")
-
-    def on_activate(a):
-        global _window
-        if _window is None:
-            _window = EveMouseWindow(a)
-        _window.present()
-
-    app.connect("activate", on_activate)
+    app.connect("activate", lambda a: EveMouseWindow(a).present())
     app.run()
