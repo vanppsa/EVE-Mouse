@@ -1,6 +1,9 @@
 import subprocess
+import logging
 
 from evdev import UInput, ecodes as e
+
+logger = logging.getLogger("eve-mouse")
 
 BTN_MAP = {
     "left": e.BTN_LEFT,
@@ -93,15 +96,121 @@ class InputController:
         self._mouse.write(e.EV_REL, e.REL_WHEEL, dy)
         self._mouse.syn()
 
-    def type_text(self, text: str) -> None:
+    def _type_with_ydotool(self, text: str) -> bool:
         try:
-            subprocess.run(
+            r = subprocess.run(
                 ["ydotool", "type", "--", text],
                 capture_output=True,
                 timeout=5,
             )
-        except Exception:
+            if r.returncode == 0:
+                return True
+            logger.warning(f"ydotool failed (rc={r.returncode}): {r.stderr.decode()[:200]}")
+        except FileNotFoundError:
+            logger.warning("ydotool not found")
+        except Exception as ex:
+            logger.warning(f"ydotool error: {ex}")
+        return False
+
+    def _type_with_wtype(self, text: str) -> bool:
+        try:
+            r = subprocess.run(
+                ["wtype", text],
+                capture_output=True,
+                timeout=5,
+            )
+            if r.returncode == 0:
+                return True
+        except FileNotFoundError:
             pass
+        except Exception as ex:
+            logger.warning(f"wtype error: {ex}")
+        return False
+
+    def _type_with_evdev(self, text: str) -> None:
+        if not self._keyboard:
+            return
+        for char in text:
+            code = self._char_to_keycode(char)
+            if code is not None:
+                self._keyboard.write(e.EV_KEY, code, 1)
+                self._keyboard.syn()
+                self._keyboard.write(e.EV_KEY, code, 0)
+                self._keyboard.syn()
+
+    def _char_to_keycode(self, char: str) -> int | None:
+        shift = False
+        keycode = None
+        simple = {
+            'a': e.KEY_A, 'b': e.KEY_B, 'c': e.KEY_C, 'd': e.KEY_D,
+            'e': e.KEY_E, 'f': e.KEY_F, 'g': e.KEY_G, 'h': e.KEY_H,
+            'i': e.KEY_I, 'j': e.KEY_J, 'k': e.KEY_K, 'l': e.KEY_L,
+            'm': e.KEY_M, 'n': e.KEY_N, 'o': e.KEY_O, 'p': e.KEY_P,
+            'q': e.KEY_Q, 'r': e.KEY_R, 's': e.KEY_S, 't': e.KEY_T,
+            'u': e.KEY_U, 'v': e.KEY_V, 'w': e.KEY_W, 'x': e.KEY_X,
+            'y': e.KEY_Y, 'z': e.KEY_Z,
+            '0': e.KEY_0, '1': e.KEY_1, '2': e.KEY_2, '3': e.KEY_3,
+            '4': e.KEY_4, '5': e.KEY_5, '6': e.KEY_6, '7': e.KEY_7,
+            '8': e.KEY_8, '9': e.KEY_9,
+            ' ': e.KEY_SPACE, '\n': e.KEY_ENTER, '-': e.KEY_MINUS,
+            '=': e.KEY_EQUAL, '[': e.KEY_LEFTBRACE, ']': e.KEY_RIGHTBRACE,
+            '\\': e.KEY_BACKSLASH, ';': e.KEY_SEMICOLON, "'": e.KEY_APOSTROPHE,
+            '`': e.KEY_GRAVE, ',': e.KEY_COMMA, '.': e.KEY_DOT,
+            '/': e.KEY_SLASH,
+        }
+        shifted = {
+            '!': e.KEY_1, '@': e.KEY_2, '#': e.KEY_3, '$': e.KEY_4,
+            '%': e.KEY_5, '^': e.KEY_6, '&': e.KEY_7, '*': e.KEY_8,
+            '(': e.KEY_9, ')': e.KEY_0,
+            '_': e.KEY_MINUS, '+': e.KEY_EQUAL,
+            '{': e.KEY_LEFTBRACE, '}': e.KEY_RIGHTBRACE,
+            '|': e.KEY_BACKSLASH, ':': e.KEY_SEMICOLON, '"': e.KEY_APOSTROPHE,
+            '~': e.KEY_GRAVE, '<': e.KEY_COMMA, '>': e.KEY_DOT,
+            '?': e.KEY_SLASH,
+            'A': (e.KEY_A, True), 'B': (e.KEY_B, True), 'C': (e.KEY_C, True),
+            'D': (e.KEY_D, True), 'E': (e.KEY_E, True), 'F': (e.KEY_F, True),
+            'G': (e.KEY_G, True), 'H': (e.KEY_H, True), 'I': (e.KEY_I, True),
+            'J': (e.KEY_J, True), 'K': (e.KEY_K, True), 'L': (e.KEY_L, True),
+            'M': (e.KEY_M, True), 'N': (e.KEY_N, True), 'O': (e.KEY_O, True),
+            'P': (e.KEY_P, True), 'Q': (e.KEY_Q, True), 'R': (e.KEY_R, True),
+            'S': (e.KEY_S, True), 'T': (e.KEY_T, True), 'U': (e.KEY_U, True),
+            'V': (e.KEY_V, True), 'W': (e.KEY_W, True), 'X': (e.KEY_X, True),
+            'Y': (e.KEY_Y, True), 'Z': (e.KEY_Z, True),
+        }
+        if char in simple:
+            keycode = simple[char]
+        elif char in shifted:
+            val = shifted[char]
+            if isinstance(val, tuple):
+                keycode, shift = val[0], val[1]
+            else:
+                shift = True
+                keycode = val
+
+        if keycode is None:
+            return None
+
+        if shift:
+            self._keyboard.write(e.EV_KEY, e.KEY_LEFTSHIFT, 1)
+            self._keyboard.syn()
+            self._keyboard.write(e.EV_KEY, keycode, 1)
+            self._keyboard.syn()
+            self._keyboard.write(e.EV_KEY, keycode, 0)
+            self._keyboard.syn()
+            self._keyboard.write(e.EV_KEY, e.KEY_LEFTSHIFT, 0)
+            self._keyboard.syn()
+            return None
+
+        return keycode
+
+    def type_text(self, text: str) -> None:
+        if not text:
+            return
+        if self._type_with_ydotool(text):
+            return
+        if self._type_with_wtype(text):
+            return
+        self._type_with_evdev(text)
 
     def special_key(self, key: str) -> None:
         if not self._keyboard:

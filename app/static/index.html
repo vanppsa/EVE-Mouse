@@ -359,13 +359,56 @@ document.getElementById('btnRight').addEventListener('touchstart', (e) => {
 }, { passive: false });
 
 const textInput = document.getElementById('textInput');
-textInput.addEventListener('input', (e) => {
+let imeBuffer = '';
+
+textInput.addEventListener('compositionstart', () => {
+    imeBuffer = '';
+});
+
+textInput.addEventListener('compositionupdate', (e) => {
+    imeBuffer = e.data || '';
+});
+
+textInput.addEventListener('compositionend', (e) => {
     if (e.data) {
         send({ type: 'keydown', text: e.data });
+    }
+    imeBuffer = '';
+    textInput.value = '';
+    prevInputText = '';
+});
+
+textInput.addEventListener('input', (e) => {
+    if (imeBuffer) return;
+    if (e.data) {
+        send({ type: 'keydown', text: e.data });
+        textInput.value = '';
+        prevInputText = '';
+    } else if (textInput.value.length > 0 && textInput.value !== prevInputText) {
+        const diff = textInput.value.slice(prevInputText.length);
+        if (diff) {
+            send({ type: 'keydown', text: diff });
+        }
+        textInput.value = '';
+        prevInputText = '';
     } else if (textInput.value.length < prevInputText.length) {
         send({ type: 'special_key', key: 'backspace' });
+        prevInputText = textInput.value;
     }
-    prevInputText = textInput.value;
+});
+
+textInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !imeBuffer) {
+        e.preventDefault();
+        const val = textInput.value.trim();
+        if (val) {
+            send({ type: 'keydown', text: val });
+            textInput.value = '';
+            prevInputText = '';
+        } else {
+            send({ type: 'special_key', key: 'enter' });
+        }
+    }
 });
 
 document.getElementById('specialKeys').addEventListener('click', (e) => {

@@ -109,11 +109,13 @@ async def websocket_endpoint(websocket: WebSocket):
             elif msg_type == "keydown":
                 text = msg.get("text", "")
                 if text:
+                    logger.info(f"type_text: {repr(text)}")
                     input_ctrl.type_text(text)
 
             elif msg_type == "special_key":
                 key = msg.get("key", "")
                 if key:
+                    logger.info(f"special_key: {key}")
                     input_ctrl.special_key(key)
 
     except WebSocketDisconnect:
