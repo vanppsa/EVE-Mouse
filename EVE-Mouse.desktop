@@ -1,6 +1,6 @@
 [Desktop Entry]
 Name=EVE-Mouse
-Comment=Controle mouse e teclado pelo celular - http://localhost:10101
+Comment=Control mouse and keyboard from your phone - http://localhost:10101
 Exec=/home/everton/.local/share/EVE-Mouse/venv/bin/python /mnt/dados/Biblioteca/Documentos/PROJETOS/EVE-Mouse/main.py
 Icon=input-mouse
 Terminal=false

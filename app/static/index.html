@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no,maximum-scale=1">
@@ -15,8 +15,8 @@
 --border:#1e1e2e;
 --text:#e0e0e8;
 --muted:#6b6b80;
---accent:#00e5a0;
---accent-dim:#00e5a022;
+--accent:#3b82f6;
+--accent-dim:#3b82f622;
 --danger:#ff4466;
 --radius:10px;
 }
@@ -29,7 +29,7 @@ touch-action:none;
 body{
 display:flex;flex-direction:column;
 background-image:
-radial-gradient(ellipse at 50% 0%,#00e5a006 0%,transparent 50%);
+radial-gradient(ellipse at 50% 0%,#3b82f606 0%,transparent 50%);
 }
 
 .top-bar{
@@ -95,7 +95,7 @@ user-select:none;
 .trackpad-area::after{
 content:'';position:absolute;inset:0;
 border-radius:inherit;
-background:radial-gradient(circle at var(--tx,50%) var(--ty,50%),#00e5a008 0%,transparent 40%);
+background:radial-gradient(circle at var(--tx,50%) var(--ty,50%),#3b82f608 0%,transparent 40%);
 pointer-events:none;
 transition:background .3s;
 }
@@ -194,9 +194,9 @@ border-color:var(--danger);
 <div class="status-dot" id="statusDot"></div>
 <span class="label">EVE-MOUSE</span>
 <div class="text-input-wrap">
-<input type="text" id="textInput" placeholder="Digite aqui..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+<input type="text" id="textInput" placeholder="Type here..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
 </div>
-<button class="btn-logout" id="btnLogout">SAIR</button>
+<button class="btn-logout" id="btnLogout">EXIT</button>
 </div>
 
 <div class="trackpad-area" id="trackpad">
@@ -204,9 +204,9 @@ border-color:var(--danger);
 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
 <path stroke-linecap="round" stroke-linejoin="round" d="M15.042 21.672 13.684 16.6m0 0-2.51 2.225.569-9.47 5.227 7.917-3.286-.672ZM12 2.25V4.5m5.834.166-1.591 1.591M20.25 10.5H18M7.757 14.743l-1.59 1.59M6 10.5H3.75m4.007-4.243-1.59-1.59"/>
 </svg>
-<span>TOQUE E ARRASTE</span>
+<span>TOUCH AND DRAG</span>
 </div>
-<div class="two-finger-scroll" id="scrollHint">2 DEDOS = SCROLL</div>
+<div class="two-finger-scroll" id="scrollHint">2 FINGERS = SCROLL</div>
 </div>
 
 <div class="special-keys" id="specialKeys">

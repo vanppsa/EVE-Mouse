@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1">
@@ -14,8 +14,8 @@
 --border:#1e1e2e;
 --text:#e0e0e8;
 --muted:#6b6b80;
---accent:#00e5a0;
---accent-dim:#00e5a033;
+--accent:#3b82f6;
+--accent-dim:#3b82f633;
 --danger:#ff4466;
 --radius:12px;
 }
@@ -33,7 +33,7 @@ flex-direction:column;
 align-items:center;
 justify-content:center;
 background-image:
-  radial-gradient(ellipse at 50% 0%,#00e5a008 0%,transparent 60%),
+  radial-gradient(ellipse at 50% 0%,#3b82f608 0%,transparent 60%),
   radial-gradient(ellipse at 80% 100%,#ff446606 0%,transparent 50%);
 }
 .container{
@@ -120,16 +120,16 @@ opacity:.4;
 <body>
 <div class="container">
 <div class="logo">EVE<span>-Mouse</span></div>
-<div class="subtitle">CONTROLE REMOTO</div>
+<div class="subtitle">REMOTE CONTROL</div>
 <form class="form" id="loginForm" autocomplete="off">
 <div class="input-wrap">
-<input type="password" id="password" placeholder="Senha de acesso" autofocus>
+<input type="password" id="password" placeholder="Access password" autofocus>
 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5">
 <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z"/>
 </svg>
 </div>
 <div class="error-msg" id="errorMsg"></div>
-<button type="submit" class="btn-login" id="btnLogin">Conectar</button>
+<button type="submit" class="btn-login" id="btnLogin">Connect</button>
 </form>
 </div>
 <div class="fingerprint">
@@ -138,7 +138,7 @@ opacity:.4;
 <path stroke-linecap="round" stroke-linejoin="round" d="M12 18.75a48.34 48.34 0 0 0 7.5 0"/>
 <path stroke-linecap="round" stroke-linejoin="round" d="M12 21.75a48.34 48.34 0 0 0 7.5 0"/>
 </svg>
-REDE LOCAL SEGURA
+LOCAL NETWORK SECURE
 </div>
 <script>
 const form=document.getElementById('loginForm');
@@ -149,9 +149,9 @@ const btn=document.getElementById('btnLogin');
 form.addEventListener('submit',async(e)=>{
 e.preventDefault();
 const pw=passInput.value.trim();
-if(!pw){errorMsg.textContent='Digite a senha';return}
+if(!pw){errorMsg.textContent='Enter the password';return}
 errorMsg.textContent='';
-btn.disabled=true;btn.textContent='Conectando...';
+btn.disabled=true;btn.textContent='Connecting...';
 try{
 const r=await fetch('/auth/login',{
 method:'POST',
@@ -162,13 +162,13 @@ if(r.ok){
 window.location.href='/';
 }else{
 const d=await r.json().catch(()=>({}));
-errorMsg.textContent=d.error||'Senha incorreta';
-btn.disabled=false;btn.textContent='Conectar';
+errorMsg.textContent=d.error||'Wrong password';
+btn.disabled=false;btn.textContent='Connect';
 passInput.select();
 }
 }catch(err){
-errorMsg.textContent='Erro de conexao';
-btn.disabled=false;btn.textContent='Conectar';
+errorMsg.textContent='Connection error';
+btn.disabled=false;btn.textContent='Connect';
 }
 });
 </script>
