@@ -69,7 +69,7 @@ Communication between phone and PC happens via **WebSocket** over the local Wi-F
 EVE-Mouse/
 ├── main.py                   # Entry point: starts GTK4 GUI (main thread)
 ├── requirements.txt          # Python dependencies
-├── EVE-Mouse.desktop         # GNOME menu shortcut
+├── com.eve.mouse.desktop   # GNOME menu shortcut (must match application_id)
 ├── .gitignore
 │
 └── app/
