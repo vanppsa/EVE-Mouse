@@ -15,6 +15,7 @@ logger = logging.getLogger("eve-mouse")
 
 PORT = 10101
 APP_TITLE = "EVE-Mouse"
+SAVED_PW_MASK = "••••••••"
 PID_FILE = Path.home() / ".config" / "EVE-Mouse" / "app.pid"
 
 
@@ -243,11 +244,13 @@ class EveMouseWindow(Gtk.ApplicationWindow):
         import uvicorn
 
         pw = self._pw_entry.get_text().strip()
-        if not pw:
+        if pw == SAVED_PW_MASK:
+            pw = ""
+        if not pw and not auth.password_hash:
             self._pw_entry.grab_focus()
             return
 
-        if not auth.password_hash or not auth.verify_password(pw):
+        if pw and (not auth.password_hash or not auth.verify_password(pw)):
             auth.set_password(pw)
 
         self._save_current_config()
@@ -327,7 +330,7 @@ class EveMouseWindow(Gtk.ApplicationWindow):
             self._timeout_entry.set_text(str(int(timeout)))
         if self._cfg.get("password_hash"):
             auth.password_hash = self._cfg["password_hash"]
-            self._pw_entry.set_placeholder_text("Password saved")
+            self._pw_entry.set_text(SAVED_PW_MASK)
 
     def _show_notification(self):
         notif = Gio.Notification.new("EVE-Mouse running")
