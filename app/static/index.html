@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no,maximum-scale=1">
+<title>EVE-Mouse</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{
+--bg:#0a0a0f;
+--surface:#12121a;
+--surface2:#181822;
+--border:#1e1e2e;
+--text:#e0e0e8;
+--muted:#6b6b80;
+--accent:#00e5a0;
+--accent-dim:#00e5a022;
+--danger:#ff4466;
+--radius:10px;
+}
+html,body{
+height:100%;width:100%;overflow:hidden;
+background:var(--bg);color:var(--text);
+font-family:'DM Sans',system-ui,sans-serif;
+touch-action:none;
+}
+body{
+display:flex;flex-direction:column;
+background-image:
+radial-gradient(ellipse at 50% 0%,#00e5a006 0%,transparent 50%);
+}
+
+.top-bar{
+flex-shrink:0;
+display:flex;align-items:center;gap:8px;
+padding:8px 12px;
+background:var(--surface);
+border-bottom:1px solid var(--border);
+}
+.status-dot{
+width:8px;height:8px;border-radius:50%;
+background:var(--accent);
+flex-shrink:0;
+animation:pulse 2s infinite;
+}
+.status-dot.off{background:var(--danger);animation:none}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.top-bar .label{
+font-family:'Space Mono',monospace;
+font-size:.7rem;color:var(--muted);
+letter-spacing:1px;white-space:nowrap;
+}
+.text-input-wrap{
+flex:1;min-width:0;
+}
+.text-input-wrap input{
+width:100%;padding:8px 12px;
+background:var(--surface2);
+border:1px solid var(--border);
+border-radius:8px;
+color:var(--text);font-size:.85rem;
+font-family:inherit;outline:none;
+transition:border-color .2s,box-shadow .2s;
+}
+.text-input-wrap input:focus{
+border-color:var(--accent);
+box-shadow:0 0 0 2px var(--accent-dim);
+}
+.text-input-wrap input::placeholder{color:var(--muted)}
+.btn-logout{
+flex-shrink:0;
+background:none;border:1px solid var(--border);
+border-radius:8px;padding:6px 10px;
+color:var(--muted);font-size:.7rem;
+font-family:'Space Mono',monospace;
+cursor:pointer;transition:all .2s;
+letter-spacing:.5px;
+}
+.btn-logout:active{border-color:var(--danger);color:var(--danger)}
+
+.trackpad-area{
+flex:1;position:relative;
+margin:8px;
+border-radius:var(--radius);
+background:
+radial-gradient(circle at 50% 50%,#ffffff02 0%,transparent 70%),
+var(--surface);
+border:1px solid var(--border);
+overflow:hidden;
+user-select:none;
+-webkit-user-select:none;
+}
+.trackpad-area::after{
+content:'';position:absolute;inset:0;
+border-radius:inherit;
+background:radial-gradient(circle at var(--tx,50%) var(--ty,50%),#00e5a008 0%,transparent 40%);
+pointer-events:none;
+transition:background .3s;
+}
+.trackpad-hint{
+position:absolute;top:50%;left:50%;
+transform:translate(-50%,-50%);
+text-align:center;pointer-events:none;
+opacity:.15;transition:opacity .5s;
+}
+.trackpad-hint.hidden{opacity:0}
+.trackpad-hint svg{
+width:32px;height:32px;stroke:var(--muted);margin:0 auto 8px;
+}
+.trackpad-hint span{
+font-size:.7rem;color:var(--muted);
+font-family:'Space Mono',monospace;
+letter-spacing:1px;
+}
+.two-finger-scroll{
+position:absolute;bottom:12px;left:50%;
+transform:translateX(-50%);
+font-size:.6rem;color:var(--muted);
+opacity:0;transition:opacity .3s;
+pointer-events:none;
+font-family:'Space Mono',monospace;
+letter-spacing:.5px;
+}
+.two-finger-scroll.show{opacity:.3}
+
+.special-keys{
+flex-shrink:0;
+display:flex;gap:6px;
+padding:6px 12px;
+overflow-x:auto;
+-webkit-overflow-scrolling:touch;
+}
+.special-keys::-webkit-scrollbar{display:none}
+.key-btn{
+flex-shrink:0;
+padding:8px 14px;
+background:var(--surface);
+border:1px solid var(--border);
+border-radius:8px;
+color:var(--text);
+font-size:.72rem;font-family:'Space Mono',monospace;
+cursor:pointer;
+transition:all .1s;
+letter-spacing:.3px;
+}
+.key-btn:active{
+background:var(--accent);
+color:var(--bg);
+border-color:var(--accent);
+transform:scale(.95);
+}
+
+.bottom-buttons{
+flex-shrink:0;
+display:flex;gap:8px;
+padding:8px 12px 16px;
+padding-bottom:max(16px,env(safe-area-inset-bottom));
+}
+.btn-click{
+flex:1;
+display:flex;align-items:center;justify-content:center;gap:8px;
+padding:18px;
+border:1.5px solid var(--border);
+border-radius:var(--radius);
+background:var(--surface);
+font-family:'Space Mono',monospace;
+font-size:.85rem;font-weight:700;
+color:var(--text);
+cursor:pointer;
+transition:all .1s;
+letter-spacing:1px;
+}
+.btn-click:active{
+background:var(--accent);
+color:var(--bg);
+border-color:var(--accent);
+transform:scale(.97);
+}
+.btn-click svg{width:20px;height:20px}
+.btn-click.right{
+border-color:#ff446633;
+}
+.btn-click.right:active{
+background:var(--danger);
+border-color:var(--danger);
+}
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+<div class="status-dot" id="statusDot"></div>
+<span class="label">EVE-MOUSE</span>
+<div class="text-input-wrap">
+<input type="text" id="textInput" placeholder="Digite aqui..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+</div>
+<button class="btn-logout" id="btnLogout">SAIR</button>
+</div>
+
+<div class="trackpad-area" id="trackpad">
+<div class="trackpad-hint" id="trackpadHint">
+<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+<path stroke-linecap="round" stroke-linejoin="round" d="M15.042 21.672 13.684 16.6m0 0-2.51 2.225.569-9.47 5.227 7.917-3.286-.672ZM12 2.25V4.5m5.834.166-1.591 1.591M20.25 10.5H18M7.757 14.743l-1.59 1.59M6 10.5H3.75m4.007-4.243-1.59-1.59"/>
+</svg>
+<span>TOQUE E ARRASTE</span>
+</div>
+<div class="two-finger-scroll" id="scrollHint">2 DEDOS = SCROLL</div>
+</div>
+
+<div class="special-keys" id="specialKeys">
+<button class="key-btn" data-key="enter">ENTER</button>
+<button class="key-btn" data-key="backspace">DEL</button>
+<button class="key-btn" data-key="tab">TAB</button>
+<button class="key-btn" data-key="esc">ESC</button>
+<button class="key-btn" data-key="space">SPACE</button>
+<button class="key-btn" data-key="up">&#9650;</button>
+<button class="key-btn" data-key="down">&#9660;</button>
+<button class="key-btn" data-key="left">&#9664;</button>
+<button class="key-btn" data-key="right">&#9654;</button>
+<button class="key-btn" data-key="ctrl">CTRL</button>
+<button class="key-btn" data-key="alt">ALT</button>
+<button class="key-btn" data-key="super">SUPER</button>
+</div>
+
+<div class="bottom-buttons">
+<button class="btn-click left" id="btnLeft">
+<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+<path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
+</svg>
+L
+</button>
+<button class="btn-click right" id="btnRight">
+<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+<path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
+</svg>
+R
+</button>
+</div>
+
+<script>
+const wsUrl = `ws://${location.host}/ws`;
+let ws = null;
+let lastTouch = null;
+let lastTwoFingerY = null;
+let sensitivity = 1.5;
+let lastTapTime = 0;
+let hintHidden = false;
+let prevInputText = '';
+
+function connect() {
+    ws = new WebSocket(wsUrl);
+    ws.addEventListener('open', () => {
+        document.getElementById('statusDot').classList.remove('off');
+    });
+    ws.addEventListener('close', () => {
+        document.getElementById('statusDot').classList.add('off');
+        setTimeout(connect, 2000);
+    });
+    ws.addEventListener('error', () => {});
+}
+
+function send(obj) {
+    if (ws && ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify(obj));
+    }
+}
+
+connect();
+
+const trackpad = document.getElementById('trackpad');
+const trackpadHint = document.getElementById('trackpadHint');
+const scrollHint = document.getElementById('scrollHint');
+
+trackpad.addEventListener('touchstart', (e) => {
+    e.preventDefault();
+    if (!hintHidden) {
+        trackpadHint.classList.add('hidden');
+        hintHidden = true;
+    }
+    if (e.touches.length === 2) {
+        scrollHint.classList.add('show');
+        lastTwoFingerY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+        lastTouch = null;
+        return;
+    }
+    lastTouch = e.touches[0];
+}, { passive: false });
+
+trackpad.addEventListener('touchmove', (e) => {
+    e.preventDefault();
+    if (e.touches.length === 2) {
+        const currentY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+        if (lastTwoFingerY !== null) {
+            const dy = (currentY - lastTwoFingerY) * sensitivity;
+            if (Math.abs(dy) > 1) {
+                send({ type: 'scroll', dy: dy > 0 ? -1 : 1 });
+            }
+        }
+        lastTwoFingerY = currentY;
+        return;
+    }
+    if (e.touches.length === 1 && lastTouch) {
+        const dx = (e.touches[0].clientX - lastTouch.clientX) * sensitivity;
+        const dy = (e.touches[0].clientY - lastTouch.clientY) * sensitivity;
+        if (Math.abs(dx) > 0.5 || Math.abs(dy) > 0.5) {
+            send({ type: 'mousemove', dx, dy });
+            const rect = trackpad.getBoundingClientRect();
+            const tx = ((e.touches[0].clientX - rect.left) / rect.width) * 100;
+            const ty = ((e.touches[0].clientY - rect.top) / rect.height) * 100;
+            trackpad.style.setProperty('--tx', tx + '%');
+            trackpad.style.setProperty('--ty', ty + '%');
+        }
+    }
+    lastTouch = e.touches[0];
+}, { passive: false });
+
+trackpad.addEventListener('touchend', (e) => {
+    e.preventDefault();
+    if (e.touches.length === 0) {
+        scrollHint.classList.remove('show');
+        lastTwoFingerY = null;
+        if (lastTouch) {
+            const now = Date.now();
+            const rect = trackpad.getBoundingClientRect();
+            const dist = Math.abs(e.changedTouches[0].clientX - lastTouch.clientX) +
+                         Math.abs(e.changedTouches[0].clientY - lastTouch.clientY);
+            if (dist < 10) {
+                if (now - lastTapTime < 300) {
+                    send({ type: 'dblclick', button: 'left' });
+                    lastTapTime = 0;
+                } else {
+                    lastTapTime = now;
+                    setTimeout(() => {
+                        if (lastTapTime === now) {
+                            send({ type: 'click', button: 'left' });
+                        }
+                    }, 300);
+                }
+            }
+        }
+        lastTouch = null;
+    } else if (e.touches.length === 1) {
+        scrollHint.classList.remove('show');
+        lastTwoFingerY = null;
+        lastTouch = e.touches[0];
+    }
+}, { passive: false });
+
+document.getElementById('btnLeft').addEventListener('touchstart', (e) => {
+    e.preventDefault();
+    send({ type: 'click', button: 'left' });
+}, { passive: false });
+
+document.getElementById('btnRight').addEventListener('touchstart', (e) => {
+    e.preventDefault();
+    send({ type: 'click', button: 'right' });
+}, { passive: false });
+
+const textInput = document.getElementById('textInput');
+textInput.addEventListener('input', (e) => {
+    if (e.data) {
+        send({ type: 'keydown', text: e.data });
+    } else if (textInput.value.length < prevInputText.length) {
+        send({ type: 'special_key', key: 'backspace' });
+    }
+    prevInputText = textInput.value;
+});
+
+document.getElementById('specialKeys').addEventListener('click', (e) => {
+    const btn = e.target.closest('.key-btn');
+    if (!btn) return;
+    const key = btn.dataset.key;
+    if (key) send({ type: 'special_key', key });
+});
+
+document.getElementById('btnLogout').addEventListener('click', () => {
+    window.location.href = '/auth/logout';
+});
+
+textInput.addEventListener('blur', () => {
+    setTimeout(() => textInput.focus(), 100);
+});
+textInput.focus();
+</script>
+</body>
+</html>

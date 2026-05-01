@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1">
+<title>EVE-Mouse</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+--bg:#0a0a0f;
+--surface:#12121a;
+--border:#1e1e2e;
+--text:#e0e0e8;
+--muted:#6b6b80;
+--accent:#00e5a0;
+--accent-dim:#00e5a033;
+--danger:#ff4466;
+--radius:12px;
+}
+html,body{
+height:100%;width:100%;
+background:var(--bg);
+color:var(--text);
+font-family:'DM Sans',system-ui,sans-serif;
+overflow:hidden;
+-webkit-tap-highlight-color:transparent;
+}
+body{
+display:flex;
+flex-direction:column;
+align-items:center;
+justify-content:center;
+background-image:
+  radial-gradient(ellipse at 50% 0%,#00e5a008 0%,transparent 60%),
+  radial-gradient(ellipse at 80% 100%,#ff446606 0%,transparent 50%);
+}
+.container{
+width:90%;max-width:340px;
+text-align:center;
+animation:fadeUp .6s ease-out;
+}
+@keyframes fadeUp{
+from{opacity:0;transform:translateY(24px)}
+to{opacity:1;transform:translateY(0)}
+}
+.logo{
+font-family:'Space Mono',monospace;
+font-size:2rem;font-weight:700;
+letter-spacing:-1px;
+color:var(--accent);
+margin-bottom:4px;
+}
+.logo span{color:var(--text)}
+.subtitle{
+font-size:.8rem;
+color:var(--muted);
+margin-bottom:32px;
+letter-spacing:.5px;
+}
+.form{
+display:flex;flex-direction:column;gap:14px;
+}
+.input-wrap{
+position:relative;
+}
+.input-wrap input{
+width:100%;
+padding:14px 16px 14px 44px;
+background:var(--surface);
+border:1.5px solid var(--border);
+border-radius:var(--radius);
+color:var(--text);
+font-size:1rem;
+font-family:inherit;
+outline:none;
+transition:border-color .2s,box-shadow .2s;
+}
+.input-wrap input:focus{
+border-color:var(--accent);
+box-shadow:0 0 0 3px var(--accent-dim);
+}
+.input-wrap input::placeholder{color:var(--muted)}
+.input-wrap svg{
+position:absolute;left:14px;top:50%;transform:translateY(-50%);
+width:18px;height:18px;stroke:var(--muted);
+transition:stroke .2s;
+}
+.input-wrap input:focus~svg{stroke:var(--accent)}
+.btn-login{
+width:100%;padding:14px;
+background:var(--accent);
+color:#0a0a0f;
+border:none;border-radius:var(--radius);
+font-size:.95rem;font-weight:600;
+font-family:inherit;
+cursor:pointer;
+transition:transform .1s,opacity .2s;
+margin-top:4px;
+}
+.btn-login:active{transform:scale(.97)}
+.btn-login:disabled{
+opacity:.5;cursor:not-allowed;transform:none;
+}
+.error-msg{
+font-size:.8rem;color:var(--danger);
+min-height:20px;
+transition:opacity .2s;
+}
+.fingerprint{
+position:absolute;bottom:24px;
+left:50%;transform:translateX(-50%);
+display:flex;align-items:center;gap:6px;
+color:var(--muted);font-size:.7rem;
+opacity:.4;
+}
+</style>
+</head>
+<body>
+<div class="container">
+<div class="logo">EVE<span>-Mouse</span></div>
+<div class="subtitle">CONTROLE REMOTO</div>
+<form class="form" id="loginForm" autocomplete="off">
+<div class="input-wrap">
+<input type="password" id="password" placeholder="Senha de acesso" autofocus>
+<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5">
+<path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z"/>
+</svg>
+</div>
+<div class="error-msg" id="errorMsg"></div>
+<button type="submit" class="btn-login" id="btnLogin">Conectar</button>
+</form>
+</div>
+<div class="fingerprint">
+<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+<path stroke-linecap="round" stroke-linejoin="round" d="M7.864 4.243A7.5 7.5 0 0 1 19.5 10.5c0 2.92-.556 5.709-1.568 8.268M5.742 6.364A7.465 7.465 0 0 0 4.5 10.5a48.667 48.667 0 0 0-1.474 8.25"/>
+<path stroke-linecap="round" stroke-linejoin="round" d="M12 18.75a48.34 48.34 0 0 0 7.5 0"/>
+<path stroke-linecap="round" stroke-linejoin="round" d="M12 21.75a48.34 48.34 0 0 0 7.5 0"/>
+</svg>
+REDE LOCAL SEGURA
+</div>
+<script>
+const form=document.getElementById('loginForm');
+const passInput=document.getElementById('password');
+const errorMsg=document.getElementById('errorMsg');
+const btn=document.getElementById('btnLogin');
+
+form.addEventListener('submit',async(e)=>{
+e.preventDefault();
+const pw=passInput.value.trim();
+if(!pw){errorMsg.textContent='Digite a senha';return}
+errorMsg.textContent='';
+btn.disabled=true;btn.textContent='Conectando...';
+try{
+const r=await fetch('/auth/login',{
+method:'POST',
+headers:{'Content-Type':'application/json'},
+body:JSON.stringify({password:pw})
+});
+if(r.ok){
+window.location.href='/';
+}else{
+const d=await r.json().catch(()=>({}));
+errorMsg.textContent=d.error||'Senha incorreta';
+btn.disabled=false;btn.textContent='Conectar';
+passInput.select();
+}
+}catch(err){
+errorMsg.textContent='Erro de conexao';
+btn.disabled=false;btn.textContent='Conectar';
+}
+});
+</script>
+</body>
+</html>
