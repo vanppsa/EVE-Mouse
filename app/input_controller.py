@@ -95,13 +95,13 @@ class InputController:
                 e.EV_REL: [e.REL_X, e.REL_Y, e.REL_WHEEL],
                 e.EV_KEY: [e.BTN_LEFT, e.BTN_RIGHT, e.BTN_MIDDLE],
             },
-            name="EVE-Mouse",
+            name="EVE Mouse",
         )
         self._keyboard = UInput(
             {
                 e.EV_KEY: list(range(0, 768)),
             },
-            name="EVE-Mouse-keyboard",
+            name="EVE Mouse Keyboard",
         )
 
     def destroy_devices(self) -> None:

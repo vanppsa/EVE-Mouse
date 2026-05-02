@@ -14,9 +14,9 @@ from app import auth, input_ctrl
 logger = logging.getLogger("eve-mouse")
 
 PORT = 10101
-APP_TITLE = "EVE-Mouse"
+APP_TITLE = "EVE Mouse"
 SAVED_PW_MASK = "••••••••"
-PID_FILE = Path.home() / ".config" / "EVE-Mouse" / "app.pid"
+PID_FILE = Path.home() / ".config" / "EVE Mouse" / "app.pid"
 
 
 def _clean_stale_pid():
@@ -77,7 +77,7 @@ class EveMouseWindow(Gtk.ApplicationWindow):
         main_box.set_margin_end(16)
         self.set_child(main_box)
 
-        title = Gtk.Label(label="EVE-Mouse")
+        title = Gtk.Label(label="EVE Mouse")
         title.add_css_class("title-1")
         title.set_margin_bottom(4)
         main_box.append(title)
@@ -300,7 +300,7 @@ class EveMouseWindow(Gtk.ApplicationWindow):
 
     def _show_restore_dialog(self, restart_callback):
         dialog = Gtk.AlertDialog()
-        dialog.set_message("EVE-Mouse is running in background")
+        dialog.set_message("EVE Mouse is running in background")
         dialog.set_detail(f"Server active at: {get_url(PORT)}")
         dialog.set_buttons(["Restore", "New Instance"])
 
@@ -333,7 +333,7 @@ class EveMouseWindow(Gtk.ApplicationWindow):
             self._pw_entry.set_text(SAVED_PW_MASK)
 
     def _show_notification(self):
-        notif = Gio.Notification.new("EVE-Mouse running")
+        notif = Gio.Notification.new("EVE Mouse running")
         notif.set_body(f"Access at: {get_url(PORT)}")
         notif.set_icon_name("input-mouse-symbolic")
         self.get_application().send_notification("eve-mouse-server", notif)
