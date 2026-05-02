@@ -113,7 +113,7 @@ python3 -m venv ~/.local/share/EVE-Mouse/venv
 ~/.local/share/EVE-Mouse/venv/bin python /path/to/EVE-Mouse/main.py
 ```
 
-Or search for **EVE-Mouse** in the GNOME application menu.
+Or search for **EVE Mouse** in the GNOME application menu.
 
 ## Configuration
 

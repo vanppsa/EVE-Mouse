@@ -333,7 +333,7 @@ class EveMouseWindow(Gtk.ApplicationWindow):
             self._pw_entry.set_text(SAVED_PW_MASK)
 
     def _show_notification(self):
-        notif = Gio.Notification.new("EVE-Mouse running")
+        notif = Gio.Notification.new("EVE Mouse running")
         notif.set_body(f"Access at: {get_url(PORT)}")
         notif.set_icon_name("input-mouse-symbolic")
         self.get_application().send_notification("eve-mouse-server", notif)

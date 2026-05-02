@@ -1,5 +1,5 @@
 [Desktop Entry]
-Name=EVE-Mouse
+Name=EVE Mouse
 Comment=Control mouse and keyboard from your phone
 Exec=/home/everton/.local/share/EVE-Mouse/venv/bin/python /mnt/dados/Biblioteca/Documentos/PROJETOS/EVE-Mouse/main.py
 Icon=input-mouse

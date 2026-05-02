@@ -101,7 +101,7 @@ class InputController:
             {
                 e.EV_KEY: list(range(0, 768)),
             },
-            name="EVE-Mouse-keyboard",
+            name="EVE Mouse keyboard",
         )
 
     def destroy_devices(self) -> None:
