@@ -243,6 +243,7 @@ R
 const wsUrl = `ws://${location.host}/ws`;
 let ws = null;
 let lastTouch = null;
+let touchOrigin = null;
 let lastTwoFingerY = null;
 let sensitivity = 1.5;
 let lastTapTime = 0;
@@ -283,9 +284,10 @@ trackpad.addEventListener('touchstart', (e) => {
         scrollHint.classList.add('show');
         lastTwoFingerY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
         lastTouch = null;
-        return;
-    }
-    lastTouch = e.touches[0];
+return;
+}
+touchOrigin = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+lastTouch = e.touches[0];
 }, { passive: false });
 
 trackpad.addEventListener('touchmove', (e) => {
@@ -321,11 +323,11 @@ trackpad.addEventListener('touchend', (e) => {
     if (e.touches.length === 0) {
         scrollHint.classList.remove('show');
         lastTwoFingerY = null;
-        if (lastTouch) {
-            const now = Date.now();
-            const rect = trackpad.getBoundingClientRect();
-            const dist = Math.abs(e.changedTouches[0].clientX - lastTouch.clientX) +
-                         Math.abs(e.changedTouches[0].clientY - lastTouch.clientY);
+if (lastTouch) {
+const now = Date.now();
+const rect = trackpad.getBoundingClientRect();
+const dist = Math.abs(e.changedTouches[0].clientX - touchOrigin.x) +
+Math.abs(e.changedTouches[0].clientY - touchOrigin.y);
             if (dist < 10) {
                 if (now - lastTapTime < 300) {
                     send({ type: 'dblclick', button: 'left' });
@@ -339,12 +341,14 @@ trackpad.addEventListener('touchend', (e) => {
                     }, 300);
                 }
             }
-        }
-        lastTouch = null;
+}
+touchOrigin = null;
+lastTouch = null;
     } else if (e.touches.length === 1) {
-        scrollHint.classList.remove('show');
-        lastTwoFingerY = null;
-        lastTouch = e.touches[0];
+scrollHint.classList.remove('show');
+lastTwoFingerY = null;
+touchOrigin = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+lastTouch = e.touches[0];
     }
 }, { passive: false });
 
