@@ -87,7 +87,7 @@ Mobile events are sent as JSON messages:
 
 ### Coding Style
 
-*   **Backend:** Follow PEP 8. Use the "eve-mouse" logger for debugging.
+*   **Backend:** Follow PEP 8. Use the "eve mouse" logger for debugging.
 *   **Frontend:** Keep it vanilla (no heavy frameworks). CSS uses `:root` variables for theming.
 *   **Security:** Never store plain-text passwords. Use `auth.set_password()`.
 
