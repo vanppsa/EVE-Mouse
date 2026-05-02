@@ -99,7 +99,8 @@ systemctl --user enable --now ydotool
 *   **Desktop UI:** GTK4 + PyGObject
 *   **Input Injection:** `python-evdev` and `ydotool`
 *   **Communication:** WebSockets
-*   **Mobile Frontend:** HTML5, CSS3, Vanilla JS (no heavy frameworks)
+*   **Mobile Frontend:** HTML5, CSS3, Vanilla JS
+*   **Architecture:** Clean modular structure with centralized state/init management.
 
 ---
 
