@@ -1,11 +1,11 @@
-# EVE-Mouse
+# EVE Mouse
 
 > Control your Linux mouse and keyboard from your phone via local network (Wi-Fi), using only the browser.
 > Compatible with **X11 and Wayland** (Fedora 44 / GNOME).
 
 ## Overview
 
-EVE-Mouse is a Linux desktop app (Fedora 44 / GNOME) with two parts:
+EVE Mouse is a Linux desktop app (Fedora 44 / GNOME) with two parts:
 
 - **Desktop app (GTK4):** A configuration window that starts a local web server.
 - **Mobile frontend:** A web page accessed from any phone browser (iPhone or Android) that turns the entire screen into a **trackpad + text input + special keys**.

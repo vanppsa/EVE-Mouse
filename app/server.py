@@ -8,11 +8,11 @@ from fastapi.staticfiles import StaticFiles
 
 from app import auth, input_ctrl
 
-logger = logging.getLogger("eve-mouse")
+logger = logging.getLogger("eve mouse")
 
 STATIC_DIR = Path(__file__).parent / "static"
 
-app = FastAPI(title="EVE-Mouse")
+app = FastAPI(title="EVE Mouse")
 
 
 @app.get("/status")

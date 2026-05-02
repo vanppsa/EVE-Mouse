@@ -3,7 +3,7 @@ import logging
 
 from evdev import UInput, ecodes as e
 
-logger = logging.getLogger("eve-mouse")
+logger = logging.getLogger("eve mouse")
 
 BTN_MAP = {
     "left": e.BTN_LEFT,
@@ -95,7 +95,7 @@ class InputController:
                 e.EV_REL: [e.REL_X, e.REL_Y, e.REL_WHEEL],
                 e.EV_KEY: [e.BTN_LEFT, e.BTN_RIGHT, e.BTN_MIDDLE],
             },
-            name="EVE-Mouse",
+            name="EVE Mouse",
         )
         self._keyboard = UInput(
             {

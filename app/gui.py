@@ -11,7 +11,7 @@ from gi.repository import Gtk, Gdk, Gio, GLib, Pango
 from app.config import load_config, save_config, get_url
 from app import auth, input_ctrl
 
-logger = logging.getLogger("eve-mouse")
+logger = logging.getLogger("eve mouse")
 
 PORT = 10101
 APP_TITLE = "EVE-Mouse"
@@ -77,7 +77,7 @@ class EveMouseWindow(Gtk.ApplicationWindow):
         main_box.set_margin_end(16)
         self.set_child(main_box)
 
-        title = Gtk.Label(label="EVE-Mouse")
+        title = Gtk.Label(label="EVE Mouse")
         title.add_css_class("title-1")
         title.set_margin_bottom(4)
         main_box.append(title)
@@ -336,7 +336,7 @@ class EveMouseWindow(Gtk.ApplicationWindow):
         notif = Gio.Notification.new("EVE Mouse running")
         notif.set_body(f"Access at: {get_url(PORT)}")
         notif.set_icon_name("input-mouse-symbolic")
-        self.get_application().send_notification("eve-mouse-server", notif)
+        self.get_application().send_notification("eve mouse-server", notif)
 
 
 def run_gui():
