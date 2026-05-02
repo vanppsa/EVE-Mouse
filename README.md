@@ -1,4 +1,4 @@
-# 🖱️ EVE Mouse
+# EVE Mouse
 
 > Turn your smartphone into a remote trackpad and keyboard for Linux (X11 & Wayland).
 > Optimized for **Fedora 44 Workstation (GNOME)**.
@@ -9,104 +9,228 @@ Unlike other solutions, EVE Mouse uses `/dev/uinput` at the kernel level, ensuri
 
 ---
 
-## ✨ Features
+## Features
 
-*   **Multi-touch Trackpad:** Control the cursor with precision, tap to click, and use two-finger scroll.
-*   **Full Keyboard:** Type directly from your phone's keyboard to your PC.
-*   **Special Keys:** Quick access to Enter, Esc, Tab, Delete, and arrow keys.
-*   **Native Interface:** GTK4 configuration window that integrates seamlessly with GNOME.
-*   **Security:** Password-protected access with encrypted sessions via bcrypt.
-*   **Low Latency:** WebSocket communication for real-time responsiveness.
+* **Multi-touch Trackpad:** Control the cursor with precision, tap to click, and use two-finger scroll.
+* **Double-click:** Tap twice on the trackpad for double-click.
+* **Full Keyboard:** Type directly from your phone's keyboard to your PC (with IME/composition support).
+* **Special Keys:** Quick access to Enter, Backspace, Tab, Esc, Space, Arrow keys, Ctrl, Alt, Super, and F1–F12.
+* **Native Interface:** GTK4 configuration window that integrates seamlessly with GNOME.
+* **Keep in Background:** Continue running the server when the window is closed.
+* **Session Control:** Persistent or single-session mode with configurable timeout.
+* **Security:** Password-protected access with bcrypt-hashed passwords and HttpOnly session cookies.
+* **Low Latency:** WebSocket communication for real-time responsiveness.
+* **Single Instance:** PID-based lock prevents multiple instances from running.
 
 ---
 
-## 🚀 Installation (Fedora 44 Workstation)
+## Compatibility
 
-Follow these steps to install and configure EVE Mouse on Fedora:
+| Distribution | Desktop | Status | Notes |
+|---|---|---|---|
+| **Fedora 40+** | GNOME (Wayland) | Primary target | Fully tested |
+| **Ubuntu 22.04+** | GNOME / KDE | Compatible | `gir1.2-gtk-4.0` required |
+| **Debian 12+** | GNOME / KDE | Compatible | Same as Ubuntu |
+| **Arch Linux** | Any | Compatible | All deps in official repos |
+| **Manjaro** | Any | Compatible | Same as Arch |
+| **openSUSE Tumbleweed** | GNOME | Compatible | All deps in repos |
+| **Ubuntu 20.04** | Any | Not supported | No GTK4 in repos |
+| **Alpine** | Any | Not supported | No systemd, no GTK4 by default |
+| **NixOS** | Any | Possible | Requires custom packaging |
 
-### 1. System Dependencies
-Open your terminal and install the required packages:
+**Requirements:** Linux kernel with `uinput` module, systemd (for ydotool service), GTK4, Python 3.10+.
+
+---
+
+## Installation
+
+### Quick Install (Recommended)
 
 ```bash
-sudo dnf install python3-gobject gtk4 ydotool
+git clone https://github.com/vanppsa/EVE-Mouse.git
+cd EVE-Mouse
+./install.sh
 ```
 
-### 2. Permission Configuration
-To allow the app to simulate mouse and keyboard events, your user needs access to input devices:
+The `install.sh` script automatically detects your distribution and handles:
+- System dependency installation
+- `/dev/uinput` udev rule setup
+- `input` group configuration
+- `ydotool` user service
+- Python virtual environment (with `--system-site-packages` for PyGObject)
+- GNOME desktop entry
 
+### Manual Installation (Fedora 44 Workstation)
+
+#### 1. System Dependencies
+
+```bash
+sudo dnf install python3-gobject python3-venv gtk4 ydotool
+```
+
+#### 2. `/dev/uinput` Access
+
+EVE Mouse needs write access to `/dev/uinput` for kernel-level input injection.
+
+**Option A — udev rule (recommended):**
+```bash
+sudo cp 99-eve-mouse-uinput.rules /etc/udev/rules.d/
+sudo udevadm control --reload-rules
+sudo udevadm trigger /dev/uinput
+```
+
+**Option B — input group only:**
 ```bash
 sudo usermod -aG input $USER
 ```
-> **Important:** You must **Log out** and **Log in** again for the group change to take effect.
 
-### 3. Configure ydotool (Wayland support)
-Fedora uses Wayland by default. To enable keyboard support, start the `ydotool` service:
+> **Important:** If using the group method, you must **log out and log back in** for the change to take effect.
+
+#### 3. Configure ydotool (Wayland support)
+
+Fedora uses Wayland by default. `ydotool` is required for text input on Wayland:
 
 ```bash
-# Enable the user-level service
-systemctl --user enable --now ydotool
+systemctl --user enable --now ydotool.service
 ```
 
-### 4. Python Environment
-Clone the repository and set up your virtual environment:
+#### 4. Python Environment
+
+The virtual environment uses `--system-site-packages` so that PyGObject (GTK4 bindings) is provided by the system package, not pip:
 
 ```bash
-git clone https://github.com/seu-usuario/nautilus-2.git EVE-Mouse
+git clone https://github.com/vanppsa/EVE-Mouse.git
 cd EVE-Mouse
-python3 -m venv venv
+python3 -m venv --system-site-packages venv
 source venv/bin/activate
 pip install -r requirements.txt
 ```
 
----
+#### 5. (Optional) Desktop Entry
 
-## 🐧 Other Linux Distributions
+To launch EVE Mouse from your GNOME application menu:
 
-### Ubuntu / Debian
 ```bash
-sudo apt install python3-gi gir1.2-gtk-4.0 ydotool
-sudo usermod -aG input $USER
-systemctl --user enable --now ydotool
+mkdir -p ~/.local/share/applications
+sed -e "s|__PYTHON__|$(pwd)/venv/bin/python|g" \
+    -e "s|__INSTALL_DIR__|$(pwd)|g" \
+    com.eve.mouse.desktop.template > ~/.local/share/applications/com.eve.mouse.desktop
 ```
 
-### Arch Linux
+#### 6. (Optional) wtype
+
+`wtype` is used as a fallback for text input if `ydotool` is unavailable:
+
 ```bash
-sudo pacman -S python-gobject gtk4 ydotool
-sudo usermod -aG input $USER
-systemctl --user enable --now ydotool
+# Fedora
+sudo dnf install wtype
+
+# Debian/Ubuntu
+sudo apt install wtype
+
+# Arch
+sudo pacman -S wtype
 ```
 
 ---
 
-## 🛠️ How to Use
+### Other Linux Distributions
 
-1.  Run the application:
-    ```bash
-    # Inside your venv
-    python main.py
-    ```
-2.  In the **EVE Mouse** window, set an **Access Password**.
-3.  Click **Start Server**.
-4.  The application will display an **Access URL** (e.g., `http://192.168.1.15:10101`).
-5.  On your phone, connect to the same Wi-Fi network and open the URL in your browser.
-6.  Enter your password and enjoy your remote control.
+#### Ubuntu / Debian
+
+```bash
+sudo apt install python3-gi python3-venv gir1.2-gtk-4.0 ydotool
+sudo usermod -aG input $USER
+systemctl --user enable --now ydotool.service
+```
+
+#### Arch Linux / Manjaro
+
+```bash
+sudo pacman -S python-gobject gtk4 ydotool python-virtualenv
+sudo usermod -aG input $USER
+systemctl --user enable --now ydotool.service
+```
+
+#### openSUSE Tumbleweed
+
+```bash
+sudo zypper install python3-gobject python3-venv gtk4 ydotool
+sudo usermod -aG input $USER
+systemctl --user enable --now ydotool.service
+```
+
+---
+
+## How to Use
+
+1. Run the application:
+```bash
+# Inside your venv
+python main.py
+```
+
+2. In the **EVE Mouse** window, set an **Access Password**.
+3. Click **Start Server**.
+4. The application will display an **Access URL** (e.g., `http://192.168.1.15:10101`).
+5. On your phone, connect to the same Wi-Fi network and open the URL in your browser.
+6. Enter your password and enjoy your remote control.
+
+> The server runs on port **10101** by default.
 
 ---
 
-## 🛠️ Technologies Used
+## How It Works
 
-*   **Backend:** [FastAPI](https://fastapi.tiangolo.com/) (Python)
-*   **Desktop UI:** GTK4 + PyGObject
-*   **Input Injection:** `python-evdev` and `ydotool`
-*   **Communication:** WebSockets
-*   **Mobile Frontend:** HTML5, CSS3, Vanilla JS
-*   **Architecture:** Clean modular structure with centralized state/init management.
+```
+Phone Browser ──WebSocket──> FastAPI Server ──> InputController
+                                  │                    │
+                                  │                    ├── /dev/uinput (evdev)
+                                  │                    ├── ydotool (Wayland text)
+                                  │                    └── wtype (fallback)
+                                  │
+                                  └── GTK4 GUI (main thread)
+```
+
+**Text input fallback chain:** `evdev` direct → `ydotool` → `wtype` → `evdev` direct.
 
 ---
 
-## 📄 License
+## Technologies Used
 
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+* **Backend:** [FastAPI](https://fastapi.tiangolo.com/) + [Uvicorn](https://www.uvicorn.org/) (Python)
+* **Desktop UI:** GTK4 + PyGObject (system package)
+* **Input Injection:** `python-evdev` (`/dev/uinput`) and `ydotool`
+* **Text Fallbacks:** `ydotool` → `wtype` → `evdev` direct
+* **Communication:** WebSockets
+* **Security:** `bcrypt` (password hashing), HttpOnly cookies (session management)
+* **Mobile Frontend:** HTML5, CSS3, Vanilla JS
 
 ---
-*Developed to provide the best remote control experience on Linux.*
+
+## Project Structure
+
+```
+EVE-Mouse/
+├── main.py                          # Entry point
+├── install.sh                       # Automated installer
+├── requirements.txt                 # Python dependencies (pip)
+├── com.eve.mouse.desktop.template   # GNOME desktop entry template
+├── 99-eve-mouse-uinput.rules        # Udev rule for /dev/uinput
+├── app/
+│   ├── __init__.py                  # Global singletons (auth, input_ctrl)
+│   ├── gui.py                       # GTK4 window + server lifecycle
+│   ├── server.py                    # FastAPI backend + WebSocket handler
+│   ├── input_controller.py          # Input injection (evdev/ydotool/wtype)
+│   ├── auth.py                      # Session management + bcrypt auth
+│   ├── config.py                    # Configuration persistence (~/.config/EVE Mouse/)
+│   └── static/
+│       ├── index.html               # Mobile trackpad interface
+│       └── login.html               # Mobile login page
+```
+
+---
+
+## License
+
+This project is licensed under the [MIT License](https://opensource.org/licenses/MIT).

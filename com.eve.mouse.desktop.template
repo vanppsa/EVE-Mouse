@@ -1,0 +1,18 @@
+[Desktop Entry]
+Name=EVE Mouse
+Comment=Control mouse and keyboard from your phone
+Exec=__PYTHON__ __INSTALL_DIR__/main.py
+Icon=input-mouse
+Terminal=false
+Type=Application
+Categories=Utility;
+StartupNotify=true
+Actions=stop-server;quit;
+
+[Desktop Action stop-server]
+Name=Stop Server
+Exec=__PYTHON__ __INSTALL_DIR__/main.py --stop-server
+
+[Desktop Action quit]
+Name=Quit
+Exec=__PYTHON__ __INSTALL_DIR__/main.py --quit
