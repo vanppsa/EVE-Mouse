@@ -20,6 +20,6 @@ from app import auth, input_ctrl
 
 if __name__ == "__main__":
     from app.config import get_url
-    logging.getLogger("eve mouse").info("EVE Mouse starting...")
-    logging.getLogger("eve mouse").info(f"Acesse: {get_url(10101)}")
+    logging.getLogger("eve-mouse").info("EVE Mouse iniciando...")
+    logging.getLogger("eve-mouse").info(f"Acesse: {get_url(10101)}")
     run_gui()

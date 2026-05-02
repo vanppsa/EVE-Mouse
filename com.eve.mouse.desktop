@@ -1,18 +1,18 @@
 [Desktop Entry]
 Name=EVE Mouse
 Comment=Control mouse and keyboard from your phone
-Exec=/home/everton/.local/share/EVE-Mouse/venv/bin/python /mnt/dados/Biblioteca/Documentos/PROJETOS/EVE-Mouse/main.py
+Exec=/home/everton/.local/share/EVE-Mouse/venv/bin/python "/mnt/dados/Biblioteca/Documentos/PROJETOS/EVE Mouse/main.py"
 Icon=input-mouse
 Terminal=false
 Type=Application
 Categories=Utility;
-DBusActivatable=true
+StartupNotify=true
 Actions=stop-server;quit;
 
 [Desktop Action stop-server]
 Name=Stop Server
-Exec=/home/everton/.local/share/EVE-Mouse/venv/bin/python /mnt/dados/Biblioteca/Documentos/PROJETOS/EVE-Mouse/main.py
+Exec=/home/everton/.local/share/EVE-Mouse/venv/bin/python "/mnt/dados/Biblioteca/Documentos/PROJETOS/EVE Mouse/main.py"
 
 [Desktop Action quit]
 Name=Quit
-Exec=/home/everton/.local/share/EVE-Mouse/venv/bin/python /mnt/dados/Biblioteca/Documentos/PROJETOS/EVE-Mouse/main.py
+Exec=/home/everton/.local/share/EVE-Mouse/venv/bin/python "/mnt/dados/Biblioteca/Documentos/PROJETOS/EVE Mouse/main.py"

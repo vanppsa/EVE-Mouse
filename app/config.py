@@ -3,7 +3,7 @@ import os
 import socket
 from pathlib import Path
 
-CONFIG_DIR = Path.home() / ".config" / "EVE-Mouse"
+CONFIG_DIR = Path.home() / ".config" / "EVE Mouse"
 CONFIG_FILE = CONFIG_DIR / "config.json"
 
 DEFAULTS = {

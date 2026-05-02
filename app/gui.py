@@ -14,9 +14,9 @@ from app import auth, input_ctrl
 logger = logging.getLogger("eve mouse")
 
 PORT = 10101
-APP_TITLE = "EVE-Mouse"
+APP_TITLE = "EVE Mouse"
 SAVED_PW_MASK = "••••••••"
-PID_FILE = Path.home() / ".config" / "EVE-Mouse" / "app.pid"
+PID_FILE = Path.home() / ".config" / "EVE Mouse" / "app.pid"
 
 
 def _clean_stale_pid():
@@ -300,7 +300,7 @@ class EveMouseWindow(Gtk.ApplicationWindow):
 
     def _show_restore_dialog(self, restart_callback):
         dialog = Gtk.AlertDialog()
-        dialog.set_message("EVE-Mouse is running in background")
+        dialog.set_message("EVE Mouse is running in background")
         dialog.set_detail(f"Server active at: {get_url(PORT)}")
         dialog.set_buttons(["Restore", "New Instance"])
 
