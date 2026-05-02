@@ -1,181 +1,111 @@
-# EVE Mouse
+# 🖱️ EVE Mouse
 
-> Control your Linux mouse and keyboard from your phone via local network (Wi-Fi), using only the browser.
-> Compatible with **X11 and Wayland** (Fedora 44 / GNOME).
+> Turn your smartphone into a remote trackpad and keyboard for Linux (X11 & Wayland).
+> Optimized for **Fedora 44 Workstation (GNOME)**.
 
-## Overview
+**EVE Mouse** is a tool that allows you to control your Linux computer's mouse and keyboard through any smartphone browser (Android or iPhone), using your local Wi-Fi network.
 
-EVE Mouse is a Linux desktop app (Fedora 44 / GNOME) with two parts:
+Unlike other solutions, EVE Mouse uses `/dev/uinput` at the kernel level, ensuring full compatibility with both **X11** and the modern **Wayland** display server (default in Fedora/GNOME).
 
-- **Desktop app (GTK4):** A configuration window that starts a local web server.
-- **Mobile frontend:** A web page accessed from any phone browser (iPhone or Android) that turns the entire screen into a **trackpad + text input + special keys**.
+---
 
-Communication between phone and PC happens via **WebSocket** over the local Wi-Fi network with minimal latency. All mouse and keyboard injection is done via `/dev/uinput` (kernel level), which works on both X11 and Wayland.
+## ✨ Features
 
-## Architecture
+*   **Multi-touch Trackpad:** Control the cursor with precision, tap to click, and use two-finger scroll.
+*   **Full Keyboard:** Type directly from your phone's keyboard to your PC.
+*   **Special Keys:** Quick access to Enter, Esc, Tab, Delete, and arrow keys.
+*   **Native Interface:** GTK4 configuration window that integrates seamlessly with GNOME.
+*   **Security:** Password-protected access with encrypted sessions via bcrypt.
+*   **Low Latency:** WebSocket communication for real-time responsiveness.
 
-```
-┌──────────────────────────────────────────────────┐
-│                  LINUX PC (Fedora 44)            │
-│                                                  │
-│  ┌─────────────────┐     ┌────────────────────┐  │
-│  │  GTK4 GUI       │────▶│  FastAPI + WS      │  │
-│  │  (settings)     │     │  port :10101       │  │
-│  └─────────────────┘     └────────┬───────────┘  │
-│                                   │              │
-│                       ┌───────────▼───────────┐  │
-│                       │   input_controller    │  │
-│                       │   python-evdev        │  │
-│                       │   /dev/uinput         │  │
-│                       │   ydotool (text)      │  │
-│                       └───────────────────────┘  │
-└──────────────────────────────────────────────────┘
-                ▲
-                │  WebSocket — local Wi-Fi
-                │  http://192.168.x.x:10101
-                ▼
-┌──────────────────────────┐
-│  iPhone / Android        │
-│  (Safari or Chrome)      │
-│                          │
-│  ┌──────────────────┐    │
-│  │ Text input field  │    │
-│  ├──────────────────┤    │
-│  │                  │    │
-│  │  Trackpad area   │    │
-│  │  (touch & drag)  │    │
-│  │                  │    │
-│  ├─────────┬────────┤    │
-│  │  [ L ]  │  [ R ] │    │
-│  └─────────┴────────┘    │
-│  [Enter][Del][Tab][Esc]   │
-└──────────────────────────┘
-```
+---
 
-## Tech Stack
+## 🚀 Installation (Fedora 44 Workstation)
 
-- **GUI:** Python + PyGObject (GTK4) — native GNOME, no heavy dependencies
-- **Server:** FastAPI + Uvicorn — async, built-in WebSocket support
-- **Input injection:** python-evdev + /dev/uinput — only reliable option on Wayland
-- **Text typing:** ydotool (primary) → wtype (fallback) → evdev direct (fallback)
-- **Mobile frontend:** HTML + CSS + JS vanilla — no framework, works on any browser
-- **Communication:** WebSocket via FastAPI — minimal latency for real-time trackpad
-- **Auth:** bcrypt + UUID4 token in HttpOnly cookie
-- **Config:** JSON at `~/.config/EVE-Mouse/config.json`
+Follow these steps to install and configure EVE Mouse on Fedora:
 
-## File Structure
-
-```
-EVE-Mouse/
-├── main.py                   # Entry point: starts GTK4 GUI (main thread)
-├── requirements.txt          # Python dependencies
-├── com.eve.mouse.desktop   # GNOME menu shortcut (must match application_id)
-├── .gitignore
-│
-└── app/
-    ├── __init__.py           # Shared auth + input_ctrl singletons
-    ├── gui.py                # GTK4 settings window
-    ├── server.py             # FastAPI: HTTP routes + WebSocket
-    ├── input_controller.py   # Mouse/keyboard injection via evdev + ydotool
-    ├── auth.py               # bcrypt password + session management
-    ├── config.py             # Read/write config.json
-    │
-    └── static/
-        ├── login.html        # Login screen (mobile browser)
-        └── index.html        # Trackpad + text input interface
-```
-
-## Installation
-
-### System dependencies (DNF)
+### 1. System Dependencies
+Open your terminal and install the required packages:
 
 ```bash
 sudo dnf install python3-gobject gtk4 ydotool
-mkdir -p ~/.config/systemd/user
-sudo cp /usr/lib/systemd/system/ydotool.service ~/.config/systemd/user/
-systemctl --user daemon-reload
-systemctl --user enable --now ydotool.service
+```
 
+### 2. Permission Configuration
+To allow the app to simulate mouse and keyboard events, your user needs access to input devices:
+
+```bash
 sudo usermod -aG input $USER
-# Log out and log back in for the input group to take effect
 ```
+> **Important:** You must **Log out** and **Log in** again for the group change to take effect.
 
-### Python environment
+### 3. Configure ydotool (Wayland support)
+Fedora uses Wayland by default. To enable keyboard support, start the `ydotool` service:
 
 ```bash
-python3 -m venv ~/.local/share/EVE-Mouse/venv
-~/.local/share/EVE-Mouse/venv/bin/pip install -r requirements.txt
+# Enable the user-level service
+systemctl --user enable --now ydotool
 ```
 
-### Run
+### 4. Python Environment
+Clone the repository and set up your virtual environment:
 
 ```bash
-~/.local/share/EVE-Mouse/venv/bin python /path/to/EVE-Mouse/main.py
+git clone https://github.com/seu-usuario/nautilus-2.git EVE-Mouse
+cd EVE-Mouse
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
 ```
 
-Or search for **EVE Mouse** in the GNOME application menu.
+---
 
-## Configuration
+## 🐧 Other Linux Distributions
 
-### GUI Settings
-
-- **Keep in background** — server keeps running when the window is closed
-- **Single session** — token expires when the app is closed
-- **Session expiry (min)** — time in minutes; `0` = no limit
-- **Access password** — password used for browser login
-- **Access URL** — auto-detected local IP + port (read-only)
-- **Copy** — copies URL to clipboard
-- **Start / Stop** — toggles the web server
-
-### config.json (`~/.config/EVE-Mouse/config.json`)
-
-```json
-{
-  "password_hash": "$2b$12$...",
-  "port": 10101,
-  "session_mode": "persistent",
-  "session_timeout_minutes": 0,
-  "trackpad_sensitivity": 1.5
-}
+### Ubuntu / Debian
+```bash
+sudo apt install python3-gi gir1.2-gtk-4.0 ydotool
+sudo usermod -aG input $USER
+systemctl --user enable --now ydotool
 ```
 
-## Server Endpoints
-
-| Method | Route | Description |
-|---|---|---|
-| `GET` | `/status` | Healthcheck — returns `{ "ok": true }` |
-| `GET` | `/login` | Serves the login page |
-| `POST` | `/auth/login` | Validates password, sets session cookie |
-| `GET` | `/auth/logout` | Invalidates session, redirects to /login |
-| `GET` | `/` | Serves trackpad interface (requires auth) |
-| `WS` | `/ws` | WebSocket for real-time input events (requires auth) |
-
-## WebSocket Protocol
-
-All messages between phone and PC are JSON:
-
-```
-{ "type": "mousemove", "dx": 5.2, "dy": -3.1 }    // Move mouse
-{ "type": "click", "button": "left" }               // "left" | "right" | "middle"
-{ "type": "dblclick", "button": "left" }            // Double click
-{ "type": "scroll", "dy": -2 }                      // Scroll
-{ "type": "keydown", "text": "Hello World" }        // Type text
-{ "type": "special_key", "key": "enter" }           // enter|backspace|tab|esc|space|arrows|ctrl|alt|super|f1-f12
+### Arch Linux
+```bash
+sudo pacman -S python-gobject gtk4 ydotool
+sudo usermod -aG input $USER
+systemctl --user enable --now ydotool
 ```
 
-## Mobile Interface
+---
 
-- **Top bar:** text input field (opens phone keyboard) + connection status + exit button
-- **Trackpad area:** touch and drag to move mouse, tap to click, double-tap to double-click
-- **Two-finger scroll:** swipe with two fingers to scroll
-- **Special keys row:** Enter, Del, Tab, Esc, Space, arrow keys, Ctrl, Alt, Super
-- **Bottom buttons:** Left click (L) and Right click (R)
+## 🛠️ How to Use
 
-## Important Notes
+1.  Run the application:
+    ```bash
+    # Inside your venv
+    python main.py
+    ```
+2.  In the **EVE Mouse** window, set an **Access Password**.
+3.  Click **Start Server**.
+4.  The application will display an **Access URL** (e.g., `http://192.168.1.15:10101`).
+5.  On your phone, connect to the same Wi-Fi network and open the URL in your browser.
+6.  Enter your password and enjoy your remote control.
 
-- **`input` group:** Your user MUST be in the `input` group. Run `sudo usermod -aG input $USER` and log out/in.
-- **ydotool daemon:** Must run as a **user service** (`systemctl --user`). System-level service won't create the user socket.
-- **Port 10101:** Chosen because ports below 1024 require root on Linux.
-- **GTK4 on main thread:** The GTK loop must run on the main thread — server runs in a daemon thread.
-- **WebSocket + cookies:** Browsers send cookies on WebSocket connections on the same origin — works natively.
-- **Local network only:** Do not expose port 10101 to the internet.
+---
+
+## 🛠️ Technologies Used
+
+*   **Backend:** [FastAPI](https://fastapi.tiangolo.com/) (Python)
+*   **Desktop UI:** GTK4 + PyGObject
+*   **Input Injection:** `python-evdev` and `ydotool`
+*   **Communication:** WebSockets
+*   **Mobile Frontend:** HTML5, CSS3, Vanilla JS (no heavy frameworks)
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+
+---
+*Developed to provide the best remote control experience on Linux.*
