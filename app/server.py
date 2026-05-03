@@ -4,7 +4,6 @@ from pathlib import Path
 
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Request
 from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
-from fastapi.staticfiles import StaticFiles
 
 from app import auth, input_ctrl
 
@@ -99,6 +98,7 @@ async def websocket_endpoint(websocket: WebSocket):
                 button = msg.get("button", "left")
                 input_ctrl.click(button)
                 import asyncio
+
                 await asyncio.sleep(0.05)
                 input_ctrl.click(button)
 

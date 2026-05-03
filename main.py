@@ -15,11 +15,11 @@ logging.basicConfig(
     format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
 )
 
-from app.gui import run_gui
-from app import auth, input_ctrl
+from app.gui import run_gui  # noqa: E402
 
 if __name__ == "__main__":
     from app.config import get_url
+
     logging.getLogger("eve mouse").info("EVE Mouse iniciando...")
     logging.getLogger("eve mouse").info(f"Acesse: {get_url(10101)}")
     run_gui()

@@ -33,7 +33,9 @@ class AuthManager:
         self._password_hash = value
 
     def set_password(self, plain_password: str) -> str:
-        hashed = bcrypt.hashpw(plain_password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
+        hashed = bcrypt.hashpw(plain_password.encode("utf-8"), bcrypt.gensalt()).decode(
+            "utf-8"
+        )
         self._password_hash = hashed
         return hashed
 
@@ -41,7 +43,9 @@ class AuthManager:
         if not self._password_hash:
             return False
         try:
-            return bcrypt.checkpw(plain_password.encode("utf-8"), self._password_hash.encode("utf-8"))
+            return bcrypt.checkpw(
+                plain_password.encode("utf-8"), self._password_hash.encode("utf-8")
+            )
         except Exception:
             return False
 
