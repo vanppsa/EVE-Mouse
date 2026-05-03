@@ -105,6 +105,19 @@ async def websocket_endpoint(websocket: WebSocket):
                 await asyncio.sleep(0.05)
                 input_ctrl.click(button)
 
+            elif msg_type == "mousedown":
+                button = msg.get("button", "left")
+                input_ctrl.mousedown(button)
+
+            elif msg_type == "mouseup":
+                button = msg.get("button", "left")
+                input_ctrl.mouseup(button)
+
+            elif msg_type == "media_key":
+                key = msg.get("key", "")
+                if key:
+                    input_ctrl.special_key(key)
+
             elif msg_type == "scroll":
                 dy = msg.get("dy", 0)
                 input_ctrl.scroll(int(dy))

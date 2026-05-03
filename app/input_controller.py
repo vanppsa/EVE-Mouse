@@ -42,6 +42,13 @@ SPECIAL_KEY_MAP = {
     "f10": e.KEY_F10,
     "f11": e.KEY_F11,
     "f12": e.KEY_F12,
+    "playpause": e.KEY_PLAYPAUSE,
+    "stop": e.KEY_STOPCD,
+    "next": e.KEY_NEXTSONG,
+    "prev": e.KEY_PREVIOUSSONG,
+    "volup": e.KEY_VOLUMEUP,
+    "voldn": e.KEY_VOLUMEDOWN,
+    "mute": e.KEY_MUTE,
 }
 
 
@@ -188,6 +195,20 @@ class InputController:
         btn = BTN_MAP.get(button, e.BTN_LEFT)
         self._mouse.write(e.EV_KEY, btn, 1)
         self._mouse.syn()
+        self._mouse.write(e.EV_KEY, btn, 0)
+        self._mouse.syn()
+
+    def mousedown(self, button: str = "left") -> None:
+        if not self._mouse:
+            return
+        btn = BTN_MAP.get(button, e.BTN_LEFT)
+        self._mouse.write(e.EV_KEY, btn, 1)
+        self._mouse.syn()
+
+    def mouseup(self, button: str = "left") -> None:
+        if not self._mouse:
+            return
+        btn = BTN_MAP.get(button, e.BTN_LEFT)
         self._mouse.write(e.EV_KEY, btn, 0)
         self._mouse.syn()
 
