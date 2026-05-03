@@ -62,6 +62,7 @@ class EveMouseWindow(Gtk.ApplicationWindow):
         self._server_thread = None
         self._server_running = False
         self._uvicorn_server = None
+        self._copy_timeout_id = None
         self._cfg = load_config()
 
         self._build_ui()
@@ -226,14 +227,19 @@ class EveMouseWindow(Gtk.ApplicationWindow):
         clipboard.set_text(get_url(PORT))
         self._start_btn.set_label("URL copied!")
 
+        self._copy_timeout_id = None
+
         def reset_label():
             if self._server_running:
                 self._start_btn.set_label("Stop")
             else:
                 self._start_btn.set_label("Start")
+            self._copy_timeout_id = None
             return GLib.SOURCE_REMOVE
 
-        GLib.timeout_add_seconds(2, reset_label)
+        if self._copy_timeout_id:
+            GLib.Source.remove(self._copy_timeout_id)
+        self._copy_timeout_id = GLib.timeout_add_seconds(2, reset_label)
 
     def _on_toggle_server(self, _btn):
         if self._server_running:

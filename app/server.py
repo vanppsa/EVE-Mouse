@@ -85,6 +85,9 @@ async def websocket_endpoint(websocket: WebSocket):
 
             msg_type = msg.get("type")
 
+            if not msg_type:
+                continue
+
             if msg_type == "mousemove":
                 dx = msg.get("dx", 0)
                 dy = msg.get("dy", 0)

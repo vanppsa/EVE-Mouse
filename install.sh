@@ -113,7 +113,10 @@ setup_venv() {
     fi
 
     info "Installing Python dependencies..."
-    "${VENV_DIR}/bin/pip" install -r "${INSTALL_DIR}/requirements.txt"
+    if ! "${VENV_DIR}/bin/pip" install -r "${INSTALL_DIR}/requirements.txt"; then
+        err "Failed to install Python dependencies."
+        return 1
+    fi
     ok "Python dependencies installed."
 }
 

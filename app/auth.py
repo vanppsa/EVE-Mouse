@@ -60,6 +60,7 @@ class AuthManager:
     def is_valid_session(self, token: str | None) -> bool:
         if not token:
             return False
+        self.cleanup_expired()
         session = self._sessions.get(token)
         if not session:
             return False
