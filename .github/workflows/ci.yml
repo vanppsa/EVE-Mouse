@@ -19,7 +19,7 @@ jobs:
       - name: Install dependencies
         run: |
           pip install ruff fastapi uvicorn bcrypt
-          sudo apt-get update && sudo apt-get install -y python3-gi gir1.2-gtk-4.0 ydotool
+          sudo apt-get update && sudo apt-get install -y python3-gi gir1.2-gtk-4.0 ydotool desktop-file-utils
 
       - name: Ruff check
         run: ruff check .
