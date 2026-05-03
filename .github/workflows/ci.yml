@@ -1,0 +1,77 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          pip install ruff fastapi uvicorn bcrypt
+          sudo apt-get update && sudo apt-get install -y python3-gi gir1.2-gtk-4.0 ydotool
+
+      - name: Ruff check
+        run: ruff check .
+
+      - name: Ruff format check
+        run: ruff format --check .
+
+      - name: Python compile check
+        run: |
+          python3 -m py_compile main.py
+          python3 -m py_compile app/__init__.py
+          python3 -m py_compile app/auth.py
+          python3 -m py_compile app/config.py
+          python3 -m py_compile app/input_controller.py
+          python3 -m py_compile app/server.py
+          python3 -m py_compile app/gui.py
+
+      - name: Shellcheck
+        uses: ludeeus/action-shellcheck@master
+        with:
+          scandir: "."
+
+      - name: Validate desktop entry template
+        run: |
+          sed -e 's|__PYTHON__|/usr/bin/python3|g' -e 's|__INSTALL_DIR__|/opt/eve-mouse|g' \
+            com.eve.mouse.desktop.template > /tmp/com.eve.mouse.desktop
+          desktop-file-validate /tmp/com.eve.mouse.desktop
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update && sudo apt-get install -y python3-gi gir1.2-gtk-4.0 ydotool
+          pip install -r requirements.txt
+
+      - name: Module import tests
+        run: |
+          python3 -c "from app.config import load_config, get_url, DEFAULTS; assert get_url(10101).startswith('http://'); assert DEFAULTS['port'] == 10101; print('CONFIG OK')"
+          python3 -c "from app.auth import AuthManager; a = AuthManager(); a.set_password('test'); assert a.verify_password('test'); assert not a.verify_password('wrong'); print('AUTH OK')"
+          python3 -c "from app.input_controller import InputController, BTN_MAP, SPECIAL_KEY_MAP; assert 'left' in BTN_MAP; assert 'enter' in SPECIAL_KEY_MAP; print('INPUT OK')"
+          python3 -c "from app.server import app; assert app.title == 'EVE Mouse'; print('SERVER OK')"
+
+      - name: Static files check
+        run: |
+          test -f app/static/index.html || (echo "index.html missing" && exit 1)
+          test -f app/static/login.html || (echo "login.html missing" && exit 1)
+          test -f app/static/icons/com.eve.mouse.png || (echo "icon missing" && exit 1)
+          echo "STATIC FILES OK"

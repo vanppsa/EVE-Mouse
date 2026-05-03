@@ -32,8 +32,7 @@ def load_config() -> dict:
     if CONFIG_FILE.exists():
         with open(CONFIG_FILE, "r", encoding="utf-8") as f:
             data = json.load(f)
-        merged = {**DEFAULTS, **data}
-        return merged
+        return {**DEFAULTS, **data}
     save_config(DEFAULTS)
     return dict(DEFAULTS)
 

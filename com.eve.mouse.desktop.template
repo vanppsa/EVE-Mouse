@@ -2,7 +2,7 @@
 Name=EVE Mouse
 Comment=Control mouse and keyboard from your phone
 Exec=__PYTHON__ __INSTALL_DIR__/main.py
-Icon=input-mouse
+Icon=com.eve.mouse
 Terminal=false
 Type=Application
 Categories=Utility;

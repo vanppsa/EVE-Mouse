@@ -6,6 +6,8 @@ INSTALL_DIR="${SCRIPT_DIR}"
 VENV_DIR="${INSTALL_DIR}/venv"
 DESKTOP_SRC="${INSTALL_DIR}/com.eve.mouse.desktop.template"
 DESKTOP_DST="${HOME}/.local/share/applications/com.eve.mouse.desktop"
+ICON_SRC="${INSTALL_DIR}/app/static/icons/com.eve.mouse.png"
+ICON_DST="${HOME}/.local/share/icons/hicolor/256x256/apps/com.eve.mouse.png"
 UDEV_RULE="${INSTALL_DIR}/99-eve-mouse-uinput.rules"
 UDEV_DST="/etc/udev/rules.d/99-eve-mouse-uinput.rules"
 
@@ -116,17 +118,32 @@ setup_venv() {
 }
 
 setup_desktop_entry() {
-    mkdir -p "$(dirname "$DESKTOP_DST")"
+  mkdir -p "$(dirname "$DESKTOP_DST")"
 
-    local python_path
-    python_path="${VENV_DIR}/bin/python"
+  local python_path
+  python_path="${VENV_DIR}/bin/python"
 
-    sed \
-        -e "s|__PYTHON__|${python_path}|g" \
-        -e "s|__INSTALL_DIR__|${INSTALL_DIR}|g" \
-        "$DESKTOP_SRC" > "$DESKTOP_DST"
+  sed \
+    -e "s|__PYTHON__|${python_path}|g" \
+    -e "s|__INSTALL_DIR__|${INSTALL_DIR}|g" \
+    "$DESKTOP_SRC" > "$DESKTOP_DST"
 
-    ok "Desktop entry created at ${DESKTOP_DST}"
+  ok "Desktop entry created at ${DESKTOP_DST}"
+}
+
+setup_icon() {
+  mkdir -p "$(dirname "$ICON_DST")"
+
+  if [ -f "$ICON_SRC" ]; then
+    cp "$ICON_SRC" "$ICON_DST"
+    ok "Icon installed at ${ICON_DST}"
+  else
+    warn "Icon source not found at ${ICON_SRC}"
+  fi
+
+  if command -v gtk-update-icon-cache &>/dev/null; then
+    gtk-update-icon-cache -f "${HOME}/.local/share/icons/hicolor" 2>/dev/null || true
+  fi
 }
 
 main() {
@@ -141,23 +158,26 @@ main() {
         exit 1
     fi
 
-    info "Step 1/6: System dependencies"
-    install_system_deps
+info "Step 1/7: System dependencies"
+install_system_deps
 
-    info "Step 2/6: /dev/uinput access (udev rule)"
-    setup_udev
+info "Step 2/7: /dev/uinput access (udev rule)"
+setup_udev
 
-    info "Step 3/6: Input group"
-    setup_input_group
+info "Step 3/7: Input group"
+setup_input_group
 
-    info "Step 4/6: ydotool service"
-    setup_ydotool
+info "Step 4/7: ydotool service"
+setup_ydotool
 
-    info "Step 5/6: Python virtual environment"
-    setup_venv
+info "Step 5/7: Python virtual environment"
+setup_venv
 
-    info "Step 6/6: Desktop entry"
-    setup_desktop_entry
+info "Step 6/7: Desktop entry"
+setup_desktop_entry
+
+info "Step 7/7: Application icon"
+setup_icon
 
     echo ""
     echo -e "${GREEN}========================================${NC}"

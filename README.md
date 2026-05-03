@@ -7,6 +7,10 @@
 
 Unlike other solutions, EVE Mouse uses `/dev/uinput` at the kernel level, ensuring full compatibility with both **X11** and the modern **Wayland** display server (default in Fedora/GNOME).
 
+<p align="center">
+  <img src="EVE%20Mouse.gif" alt="EVE Mouse Demo" width="300">
+</p>
+
 ---
 
 ## Features
@@ -58,7 +62,7 @@ The `install.sh` script automatically detects your distribution and handles:
 - `input` group configuration
 - `ydotool` user service
 - Python virtual environment (with `--system-site-packages` for PyGObject)
-- GNOME desktop entry
+- GNOME desktop entry with custom icon
 
 ### Manual Installation (Fedora 44 Workstation)
 
@@ -212,21 +216,25 @@ Phone Browser ──WebSocket──> FastAPI Server ──> InputController
 
 ```
 EVE-Mouse/
-├── main.py                          # Entry point
-├── install.sh                       # Automated installer
-├── requirements.txt                 # Python dependencies (pip)
-├── com.eve.mouse.desktop.template   # GNOME desktop entry template
-├── 99-eve-mouse-uinput.rules        # Udev rule for /dev/uinput
+├── main.py                           # Entry point
+├── install.sh                        # Automated installer
+├── requirements.txt                  # Python dependencies (pip)
+├── EVE Mouse.gif                     # Demo GIF
+├── com.eve.mouse.desktop.template    # GNOME desktop entry template
+├── 99-eve-mouse-uinput.rules         # Udev rule for /dev/uinput
+├── .github/workflows/ci.yml          # GitHub Actions CI
 ├── app/
-│   ├── __init__.py                  # Global singletons (auth, input_ctrl)
-│   ├── gui.py                       # GTK4 window + server lifecycle
-│   ├── server.py                    # FastAPI backend + WebSocket handler
-│   ├── input_controller.py          # Input injection (evdev/ydotool/wtype)
-│   ├── auth.py                      # Session management + bcrypt auth
-│   ├── config.py                    # Configuration persistence (~/.config/EVE Mouse/)
+│   ├── __init__.py                   # Global singletons (auth, input_ctrl)
+│   ├── gui.py                        # GTK4 window + server lifecycle
+│   ├── server.py                     # FastAPI backend + WebSocket handler
+│   ├── input_controller.py           # Input injection (evdev/ydotool/wtype)
+│   ├── auth.py                       # Session management + bcrypt auth
+│   ├── config.py                     # Configuration persistence (~/.config/EVE Mouse/)
 │   └── static/
-│       ├── index.html               # Mobile trackpad interface
-│       └── login.html               # Mobile login page
+│       ├── index.html                # Mobile trackpad interface
+│       ├── login.html                # Mobile login page
+│       └── icons/
+│           └── com.eve.mouse.png     # Application icon
 ```
 
 ---

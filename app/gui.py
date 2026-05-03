@@ -335,7 +335,7 @@ class EveMouseWindow(Gtk.ApplicationWindow):
     def _show_notification(self):
         notif = Gio.Notification.new("EVE Mouse running")
         notif.set_body(f"Access at: {get_url(PORT)}")
-        notif.set_icon_name("input-mouse-symbolic")
+        notif.set_icon_name("com.eve.mouse")
         self.get_application().send_notification("eve mouse-server", notif)
 
 
