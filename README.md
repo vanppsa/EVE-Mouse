@@ -48,7 +48,30 @@ Unlike other solutions, EVE Mouse uses `/dev/uinput` at the kernel level, ensuri
 
 ## Installation
 
-### Quick Install (Recommended)
+### Option 1: Setup Script (Recommended)
+
+Single command that handles everything:
+
+```bash
+git clone https://github.com/vanppsa/EVE-Mouse.git
+cd EVE-Mouse
+./setup.sh
+```
+
+The `setup.sh` script automatically:
+- Detects your Linux distribution
+- Installs system dependencies
+- Configures `/dev/uinput` udev rule
+- Adds your user to the `input` group
+- Enables ydotool service
+- Creates Python virtual environment
+- Runs the desktop entry installer
+
+> **Note:** You may need to log out and back in after setup if it's your first time in the `input` group.
+
+---
+
+### Option 2: Install Script
 
 ```bash
 git clone https://github.com/vanppsa/EVE-Mouse.git
@@ -56,15 +79,13 @@ cd EVE-Mouse
 ./install.sh
 ```
 
-The `install.sh` script automatically detects your distribution and handles:
-- System dependency installation
-- `/dev/uinput` udev rule setup
-- `input` group configuration
-- `ydotool` user service
-- Python virtual environment (with `--system-site-packages` for PyGObject)
-- GNOME desktop entry with custom icon
+Same as option 1, but splits the process into two steps.
 
-### Manual Installation (Fedora 44 Workstation)
+---
+
+### Option 3: Manual Step by Step
+
+For users who want to understand each step or troubleshoot.
 
 #### 1. System Dependencies
 
@@ -92,15 +113,11 @@ sudo usermod -aG input $USER
 
 #### 3. Configure ydotool (Wayland support)
 
-Fedora uses Wayland by default. `ydotool` is required for text input on Wayland:
-
 ```bash
 systemctl --user enable --now ydotool.service
 ```
 
 #### 4. Python Environment
-
-The virtual environment uses `--system-site-packages` so that PyGObject (GTK4 bindings) is provided by the system package, not pip:
 
 ```bash
 git clone https://github.com/vanppsa/EVE-Mouse.git
@@ -151,7 +168,7 @@ systemctl --user enable --now ydotool.service
 #### Arch Linux / Manjaro
 
 ```bash
-sudo pacman -S python-gobject gtk4 ydotool python-virtualenv
+sudo pacman -S --needed python-gobject gtk4 ydotool python-virtualenv
 sudo usermod -aG input $USER
 systemctl --user enable --now ydotool.service
 ```
@@ -159,7 +176,7 @@ systemctl --user enable --now ydotool.service
 #### openSUSE Tumbleweed
 
 ```bash
-sudo zypper install python3-gobject python3-venv gtk4 ydotool
+sudo zypper install -y python3-gobject python3-venv gtk4 ydotool
 sudo usermod -aG input $USER
 systemctl --user enable --now ydotool.service
 ```
@@ -217,7 +234,8 @@ Phone Browser ──WebSocket──> FastAPI Server ──> InputController
 ```
 EVE-Mouse/
 ├── main.py                           # Entry point
-├── install.sh                        # Automated installer
+├── setup.sh                          # One-command setup script
+├── install.sh                        # Desktop entry + icon installer
 ├── requirements.txt                  # Python dependencies (pip)
 ├── EVE Mouse.gif                     # Demo GIF
 ├── com.eve.mouse.desktop.template    # GNOME desktop entry template

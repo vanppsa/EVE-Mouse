@@ -1,8 +1,8 @@
 [Desktop Entry]
 Name=EVE Mouse
 Comment=Control mouse and keyboard from your phone
-Exec=__PYTHON__ __INSTALL_DIR__/main.py
-Icon=com.eve.mouse
+Exec=__PYTHON__ "__INSTALL_DIR__/main.py"
+Icon=__ICON_NAME__
 Terminal=false
 Type=Application
 Categories=Utility;
@@ -11,8 +11,8 @@ Actions=stop-server;quit;
 
 [Desktop Action stop-server]
 Name=Stop Server
-Exec=__PYTHON__ __INSTALL_DIR__/main.py --stop-server
+Exec=__PYTHON__ "__INSTALL_DIR__/main.py" --stop-server
 
 [Desktop Action quit]
 Name=Quit
-Exec=__PYTHON__ __INSTALL_DIR__/main.py --quit
+Exec=__PYTHON__ "__INSTALL_DIR__/main.py" --quit

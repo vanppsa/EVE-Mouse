@@ -123,12 +123,14 @@ setup_venv() {
 setup_desktop_entry() {
   mkdir -p "$(dirname "$DESKTOP_DST")"
 
-  local python_path
+  local python_path icon_path
   python_path="${VENV_DIR}/bin/python"
+  icon_path="${HOME}/.local/share/icons/hicolor/256x256/apps/com.eve.mouse.png"
 
   sed \
-    -e "s|__PYTHON__|${python_path}|g" \
-    -e "s|__INSTALL_DIR__|${INSTALL_DIR}|g" \
+    -e "s|__PYTHON__|\"${python_path}\"|g" \
+    -e "s|__INSTALL_DIR__|\"${INSTALL_DIR}\"|g" \
+    -e "s|__ICON_NAME__|${icon_path}|g" \
     "$DESKTOP_SRC" > "$DESKTOP_DST"
 
   ok "Desktop entry created at ${DESKTOP_DST}"
