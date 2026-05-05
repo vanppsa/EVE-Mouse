@@ -300,13 +300,13 @@ class InputController:
     def type_text(self, text: str) -> None:
         if not text:
             return
-        if self._all_chars_mapped(text):
-            self._type_with_evdev(text)
+        if self._type_with_wtype(text):
+            logger.debug("type_text via wtype")
             return
         if self._type_with_ydotool(text):
+            logger.debug("type_text via ydotool")
             return
-        if self._type_with_wtype(text):
-            return
+        logger.debug("type_text via evdev (fallback)")
         self._type_with_evdev(text)
 
     def special_key(self, key: str) -> None:
