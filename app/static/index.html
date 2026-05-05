@@ -536,7 +536,7 @@ trackpad.addEventListener('touchend', (e) => {
         if (isDragging) {
             send({ type: 'mouseup', button: 'left' });
             isDragging = false;
-        } else if (twoFingerStart) {
+        } else if (twoFingerStart && !twoFingerMoved) {
             send({ type: 'click', button: 'right' });
         } else if (lastTouch && touchOrigin) {
             const dist = Math.abs(lastTouch.x - touchOrigin.x) + Math.abs(lastTouch.y - touchOrigin.y);
@@ -545,8 +545,9 @@ trackpad.addEventListener('touchend', (e) => {
                 send({ type: 'click', button: 'left' });
             }
         }
-        twoFingerStart = false;
-        touchOrigin = null;
+twoFingerStart = false;
+      twoFingerMoved = false;
+      touchOrigin = null;
         lastTouch = null;
     } else if (e.touches.length === 1) {
         if (isDragging) {
