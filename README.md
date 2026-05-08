@@ -48,22 +48,22 @@ Unlike other solutions, EVE Mouse uses `/dev/uinput` at the kernel level, ensuri
 
 ## Installation
 
-### Option 1: Setup Script (Recommended)
+### Option 1: Standard Make (Recommended)
 
 Single command that handles everything:
 
 ```bash
 git clone https://github.com/vanppsa/EVE-Mouse.git
 cd EVE-Mouse
-./setup.sh
-```
-
-Alternatively, you can use the standard `make` approach:
-```bash
 make install
 ```
 
-The `setup.sh` script automatically:
+Alternatively, you can run the setup script directly:
+```bash
+./setup.sh
+```
+
+The installer automatically:
 - Detects your Linux distribution
 - Installs system dependencies
 - Configures `/dev/uinput` udev rule
