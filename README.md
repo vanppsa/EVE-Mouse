@@ -60,6 +60,7 @@ make install
 
 Alternatively, you can run the setup script directly:
 ```bash
+chmod +x setup.sh
 ./setup.sh
 ```
 
