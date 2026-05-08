@@ -40,13 +40,20 @@ if [ "$(id -u)" -eq 0 ]; then
     exit 1
 fi
 
+info "Checking Python version..."
+if ! python3 -c "import sys; sys.exit(0 if sys.version_info >= (3, 10) else 1)"; then
+    err "Python 3.10+ is required."
+    exit 1
+fi
+ok "Python version is 3.10+."
+
 distro=$(detect_distro)
 info "Detected: $distro"
 
 info "Step 1/6: Installing system dependencies..."
 case "$distro" in
     fedora)
-        sudo dnf install -y python3-gobject gtk4 ydotool 2>&1 | tail -3
+        sudo dnf install -y python3-gobject python3-venv gtk4 ydotool 2>&1 | tail -3
         ;;
     debian)
         sudo apt install -y python3-gi python3-venv gir1.2-gtk-4.0 ydotool 2>&1 | tail -3
@@ -66,7 +73,6 @@ ok "System dependencies installed."
 
 info "Step 2/6: Installing udev rule for /dev/uinput..."
 if [ ! -f /etc/udev/rules.d/99-eve-mouse-uinput.rules ]; then
-    echo "8624" | sudo -S cp "$SCRIPT_DIR/99-eve-mouse-uinput.rules" /etc/udev/rules.d/ 2>/dev/null || \
     sudo cp "$SCRIPT_DIR/99-eve-mouse-uinput.rules" /etc/udev/rules.d/
     sudo udevadm control --reload-rules 2>/dev/null || true
     sudo udevadm trigger /dev/uinput 2>/dev/null || true
@@ -74,8 +80,7 @@ fi
 ok "Udev rule installed."
 
 info "Step 3/6: Adding user to 'input' group..."
-if ! groups "$USER" | grep -q '\binput\b'; then
-    echo "8624" | sudo -S usermod -aG input "$USER" 2>/dev/null || \
+if ! groups "$USER" | grep -qw 'input'; then
     sudo usermod -aG input "$USER"
     warn "You must log out and log back in for group change to take effect."
 else
@@ -113,7 +118,7 @@ echo ""
 echo "Or click 'EVE Mouse' in your application menu."
 echo ""
 
-if ! groups "$USER" | grep -q '\binput\b' 2>/dev/null; then
+if ! groups "$USER" | grep -qw 'input' 2>/dev/null; then
     echo -e "${YELLOW}IMPORTANT: Log out and log back in for 'input' group to take effect.${NC}"
 fi
-echo -e "${YELLOW}Restart GNOME Shell: Alt+F2, type 'r', press Enter${NC}"
+echo -e "${YELLOW}IMPORTANT: Log out and log back in to apply all system changes (especially on Wayland).${NC}"

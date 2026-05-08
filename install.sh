@@ -84,7 +84,7 @@ setup_udev() {
 }
 
 setup_input_group() {
-    if groups "$USER" | grep -q '\binput\b'; then
+    if groups "$USER" | grep -qw 'input'; then
         ok "User already in 'input' group."
     else
         info "Adding user to 'input' group..."
@@ -152,6 +152,11 @@ setup_icon() {
 }
 
 main() {
+    local SKIP_DEPS=0
+    if [ "${1:-}" = "--skip-deps" ]; then
+        SKIP_DEPS=1
+    fi
+
     echo ""
     echo -e "${CYAN}========================================${NC}"
     echo -e "${CYAN}   EVE Mouse - Installer${NC}"
@@ -163,26 +168,30 @@ main() {
         exit 1
     fi
 
-info "Step 1/7: System dependencies"
-install_system_deps
+    if [ "$SKIP_DEPS" -eq 0 ]; then
+        info "Step 1/7: System dependencies"
+        install_system_deps
+        
+        info "Step 2/7: /dev/uinput access (udev rule)"
+        setup_udev
+        
+        info "Step 3/7: Input group"
+        setup_input_group
+        
+        info "Step 4/7: ydotool service"
+        setup_ydotool
+        
+        info "Step 5/7: Python virtual environment"
+        setup_venv
+    else
+        info "Skipping system dependencies (called by setup.sh)"
+    fi
 
-info "Step 2/7: /dev/uinput access (udev rule)"
-setup_udev
+    info "Step 6/7: Desktop entry"
+    setup_desktop_entry
 
-info "Step 3/7: Input group"
-setup_input_group
-
-info "Step 4/7: ydotool service"
-setup_ydotool
-
-info "Step 5/7: Python virtual environment"
-setup_venv
-
-info "Step 6/7: Desktop entry"
-setup_desktop_entry
-
-info "Step 7/7: Application icon"
-setup_icon
+    info "Step 7/7: Application icon"
+    setup_icon
 
     echo ""
     echo -e "${GREEN}========================================${NC}"

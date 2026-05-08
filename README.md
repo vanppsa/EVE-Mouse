@@ -58,6 +58,11 @@ cd EVE-Mouse
 ./setup.sh
 ```
 
+Alternatively, you can use the standard `make` approach:
+```bash
+make install
+```
+
 The `setup.sh` script automatically:
 - Detects your Linux distribution
 - Installs system dependencies
@@ -132,9 +137,11 @@ pip install -r requirements.txt
 To launch EVE Mouse from your GNOME application menu:
 
 ```bash
-mkdir -p ~/.local/share/applications
+mkdir -p ~/.local/share/applications ~/.local/share/icons/hicolor/256x256/apps
+cp app/static/icons/com.eve.mouse.png ~/.local/share/icons/hicolor/256x256/apps/
 sed -e "s|__PYTHON__|$(pwd)/venv/bin/python|g" \
     -e "s|__INSTALL_DIR__|$(pwd)|g" \
+    -e "s|__ICON_NAME__|~/.local/share/icons/hicolor/256x256/apps/com.eve.mouse.png|g" \
     com.eve.mouse.desktop.template > ~/.local/share/applications/com.eve.mouse.desktop
 ```
 

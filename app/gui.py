@@ -17,7 +17,7 @@ logger = logging.getLogger("eve mouse")
 PORT = 10101
 APP_TITLE = "EVE Mouse"
 SAVED_PW_MASK = "••••••••"
-PID_FILE = Path.home() / ".config" / "EVE Mouse" / "app.pid"
+PID_FILE = Path.home() / ".config" / "EVE-Mouse" / "app.pid"
 
 
 def _clean_stale_pid():
