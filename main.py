@@ -5,10 +5,12 @@ import os
 import ctypes
 
 from pathlib import Path
+
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 try:
     import ctypes.util
+
     libc_path = ctypes.util.find_library("c")
     if libc_path:
         ctypes.CDLL(libc_path).prctl(15, b"EVE Mouse", 0, 0, 0)
@@ -34,6 +36,7 @@ from app.gui import run_gui  # noqa: E402
 
 if __name__ == "__main__":
     import argparse
+
     parser = argparse.ArgumentParser()
     parser.add_argument("--stop-server", action="store_true")
     parser.add_argument("--quit", action="store_true")
