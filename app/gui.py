@@ -5,19 +5,18 @@ import logging
 from pathlib import Path
 
 import gi
-
 gi.require_version("Gtk", "4.0")
-from gi.repository import Gtk, Gdk, Gio, GLib, Pango  # noqa: E402
+from gi.repository import Gtk, Gdk, Gio, GLib, Pango
 
-from app.config import load_config, save_config, get_url  # noqa: E402
-from app import auth, input_ctrl  # noqa: E402
+from app.config import load_config, save_config, get_url
+from app import auth, input_ctrl
 
 logger = logging.getLogger("eve mouse")
 
 PORT = 10101
 APP_TITLE = "EVE Mouse"
 SAVED_PW_MASK = "••••••••"
-PID_FILE = Path.home() / ".config" / "EVE-Mouse" / "app.pid"
+PID_FILE = Path.home() / ".config" / "EVE Mouse" / "app.pid"
 
 
 def _clean_stale_pid():
@@ -51,6 +50,7 @@ def _remove_pid():
 
 
 class EveMouseWindow(Gtk.ApplicationWindow):
+
     def __init__(self, app):
         super().__init__(
             application=app,
@@ -62,7 +62,6 @@ class EveMouseWindow(Gtk.ApplicationWindow):
         self._server_thread = None
         self._server_running = False
         self._uvicorn_server = None
-        self._copy_timeout_id = None
         self._cfg = load_config()
 
         self._build_ui()
@@ -97,13 +96,13 @@ class EveMouseWindow(Gtk.ApplicationWindow):
         main_box.append(settings_box)
 
         self._sw_keep_background = self._add_switch(
-            settings_box,
-            "Keep in background",
-            "Continue running server when window is closed",
+            settings_box, "Keep in background",
+            "Continue running server when window is closed"
         )
 
         self._sw_single_session = self._add_switch(
-            settings_box, "Single session", "Token expires when app is closed"
+            settings_box, "Single session",
+            "Token expires when app is closed"
         )
 
         self._sw_single_session.connect("notify::active", self._on_session_mode_changed)
@@ -226,20 +225,13 @@ class EveMouseWindow(Gtk.ApplicationWindow):
         clipboard = Gdk.Display.get_default().get_clipboard()
         clipboard.set_text(get_url(PORT))
         self._start_btn.set_label("URL copied!")
-
-        self._copy_timeout_id = None
-
         def reset_label():
             if self._server_running:
                 self._start_btn.set_label("Stop")
             else:
                 self._start_btn.set_label("Start")
-            self._copy_timeout_id = None
             return GLib.SOURCE_REMOVE
-
-        if self._copy_timeout_id:
-            GLib.Source.remove(self._copy_timeout_id)
-        self._copy_timeout_id = GLib.timeout_add_seconds(2, reset_label)
+        GLib.timeout_add_seconds(2, reset_label)
 
     def _on_toggle_server(self, _btn):
         if self._server_running:
@@ -263,23 +255,15 @@ class EveMouseWindow(Gtk.ApplicationWindow):
 
         self._save_current_config()
 
-        auth.session_mode = (
-            "single" if self._sw_single_session.get_active() else "persistent"
-        )
+        auth.session_mode = "single" if self._sw_single_session.get_active() else "persistent"
         timeout_str = self._timeout_entry.get_text().strip()
-        auth.session_timeout_minutes = (
-            float(timeout_str) if timeout_str and timeout_str != "0" else 0
-        )
+        auth.session_timeout_minutes = float(timeout_str) if timeout_str and timeout_str != "0" else 0
 
         input_ctrl.init_devices()
 
-        config = uvicorn.Config(
-            fastapi_app, host="0.0.0.0", port=PORT, log_level="warning"
-        )
+        config = uvicorn.Config(fastapi_app, host="0.0.0.0", port=PORT, log_level="warning")
         self._uvicorn_server = uvicorn.Server(config)
-        self._server_thread = threading.Thread(
-            target=self._uvicorn_server.run, daemon=True
-        )
+        self._server_thread = threading.Thread(target=self._uvicorn_server.run, daemon=True)
         self._server_thread.start()
         self._server_running = True
         self.get_application().hold()
@@ -329,14 +313,10 @@ class EveMouseWindow(Gtk.ApplicationWindow):
 
     def _save_current_config(self):
         self._cfg["password_hash"] = auth.password_hash
-        self._cfg["session_mode"] = (
-            "single" if self._sw_single_session.get_active() else "persistent"
-        )
+        self._cfg["session_mode"] = "single" if self._sw_single_session.get_active() else "persistent"
         self._cfg["keep_background"] = self._sw_keep_background.get_active()
         timeout_str = self._timeout_entry.get_text().strip()
-        self._cfg["session_timeout_minutes"] = (
-            float(timeout_str) if timeout_str and timeout_str != "0" else 0
-        )
+        self._cfg["session_timeout_minutes"] = float(timeout_str) if timeout_str and timeout_str != "0" else 0
         save_config(self._cfg)
 
     def _load_config_to_ui(self):
@@ -355,7 +335,8 @@ class EveMouseWindow(Gtk.ApplicationWindow):
     def _show_notification(self):
         notif = Gio.Notification.new("EVE Mouse running")
         notif.set_body(f"Access at: {get_url(PORT)}")
-        notif.set_icon_name("com.eve.mouse")
+        icon = Gio.ThemedIcon.new("input-mouse-symbolic")
+        notif.set_icon(icon)
         self.get_application().send_notification("eve mouse-server", notif)
 
 

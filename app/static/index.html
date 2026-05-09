@@ -114,7 +114,7 @@ font-size:.7rem;color:var(--muted);
 font-family:'Space Mono',monospace;
 letter-spacing:1px;
 }
-.two-finger-hint{
+.two-finger-scroll{
 position:absolute;bottom:12px;left:50%;
 transform:translateX(-50%);
 font-size:.6rem;color:var(--muted);
@@ -123,159 +123,12 @@ pointer-events:none;
 font-family:'Space Mono',monospace;
 letter-spacing:.5px;
 }
-.two-finger-hint.show{opacity:.3}
-
-.special-keys{
-flex-shrink:0;
-display:flex;gap:6px;
-padding:6px 12px;
-overflow-x:auto;
--webkit-overflow-scrolling:touch;
-}
-.special-keys::-webkit-scrollbar{display:none}
-.key-btn{
-flex-shrink:0;
-padding:8px 14px;
-background:var(--surface);
-border:1px solid var(--border);
-border-radius:8px;
-color:var(--text);
-font-size:.72rem;font-family:'Space Mono',monospace;
-cursor:pointer;
-transition:all .1s;
-letter-spacing:.3px;
-}
-.key-btn:active{
-background:var(--accent);
-color:var(--bg);
-border-color:var(--accent);
-transform:scale(.95);
-}
-.media-btn{
-padding:8px 12px;
-background:var(--surface2);
-border:1px solid var(--accent);
-color:var(--accent);
-}
-.media-btn.active{
-background:var(--accent);
-color:var(--bg);
-}
-.media-btn svg{
-width:18px;height:18px;
-display:block;
-}
-
-.media-overlay{
-position:fixed;inset:0;
-background:rgba(0,0,0,.6);
-opacity:0;visibility:hidden;
-transition:opacity .3s,visibility .3s;
-z-index:100;
-}
-.media-overlay.show{
-opacity:1;visibility:visible;
-}
-
-.media-menu{
-position:fixed;
-bottom:0;left:0;right:0;
-background:var(--surface);
-border-top:1px solid var(--border);
-border-radius:20px 20px 0 0;
-padding:16px 20px 24px;
-padding-bottom:max(24px,env(safe-area-inset-bottom));
-transform:translateY(100%);
-transition:transform .3s ease-out;
-z-index:101;
-}
-.media-overlay.show .media-menu{
-transform:translateY(0);
-}
-
-.media-header{
-display:flex;align-items:center;justify-content:space-between;
-margin-bottom:20px;
-}
-.media-header span{
-font-family:'Space Mono',monospace;
-font-size:.8rem;color:var(--muted);
-letter-spacing:1px;
-}
-.media-close{
-width:32px;height:32px;
-display:flex;align-items:center;justify-content:center;
-background:var(--surface2);
-border:1px solid var(--border);
-border-radius:50%;
-color:var(--muted);
-font-size:1.2rem;
-cursor:pointer;
-}
-.media-close:active{
-background:var(--danger);
-border-color:var(--danger);
-color:var(--bg);
-}
-
-.media-dpad{
-display:grid;
-grid-template-columns:repeat(3,1fr);
-grid-template-rows:repeat(3,1fr);
-gap:8px;
-max-width:240px;
-margin:0 auto 24px;
-}
-.dpad-btn{
-aspect-ratio:1;
-background:var(--surface2);
-border:1px solid var(--border);
-border-radius:12px;
-display:flex;align-items:center;justify-content:center;
-font-size:1.5rem;
-color:var(--text);
-cursor:pointer;
-transition:all .1s;
-}
-.dpad-btn:active{
-background:var(--accent);
-border-color:var(--accent);
-transform:scale(.95);
-}
-.dpad-btn.up{grid-column:2;grid-row:1}
-.dpad-btn.left{grid-column:1;grid-row:2}
-.dpad-btn.center{grid-column:2;grid-row:2;background:transparent;border:none;cursor:default}
-.dpad-btn.center:active{transform:none}
-.dpad-btn.right{grid-column:3;grid-row:2}
-.dpad-btn.down{grid-column:2;grid-row:3}
-
-.media-controls{
-display:flex;justify-content:center;gap:12px;
-flex-wrap:wrap;
-}
-.ctrl-btn{
-width:52px;height:52px;
-background:var(--surface2);
-border:1px solid var(--border);
-border-radius:50%;
-display:flex;align-items:center;justify-content:center;
-font-size:1.1rem;
-color:var(--text);
-cursor:pointer;
-transition:all .1s;
-}
-.ctrl-btn:active{
-background:var(--accent);
-border-color:var(--accent);
-transform:scale(.95);
-}
-.ctrl-btn.play{width:64px;height:64px;font-size:1.4rem;background:var(--accent);border-color:var(--accent);color:var(--bg)}
+.two-finger-scroll.show{opacity:.3}
 
 .bottom-buttons{
 flex-shrink:0;
 display:flex;gap:8px;
-padding:8px 12px 16px;
-padding-bottom:max(16px,env(safe-area-inset-bottom));
+padding:8px 12px;
 }
 .btn-click{
 flex:1;
@@ -305,6 +158,160 @@ border-color:#ff446633;
 background:var(--danger);
 border-color:var(--danger);
 }
+
+.special-keys{
+flex-shrink:0;
+display:flex;gap:6px;
+padding:6px 12px;
+overflow-x:auto;
+-webkit-overflow-scrolling:touch;
+}
+.special-keys::-webkit-scrollbar{display:none}
+.key-btn{
+flex-shrink:0;
+padding:12px 18px;
+background:var(--surface);
+border:1px solid var(--border);
+border-radius:8px;
+color:var(--text);
+font-size:.85rem;font-family:'Space Mono',monospace;
+cursor:pointer;
+transition:all .1s;
+letter-spacing:.3px;
+}
+.key-btn:active{
+background:var(--accent);
+color:var(--bg);
+border-color:var(--accent);
+transform:scale(.95);
+}
+
+.bottom-bar{
+flex-shrink:0;
+display:flex;
+align-items:center;
+gap:8px;
+padding:8px 12px;
+overflow-x:auto;
+-webkit-overflow-scrolling:touch;
+scrollbar-width:none;
+}
+.bottom-bar::-webkit-scrollbar{display:none}
+.bottom-spacer{
+flex-shrink:0;
+height:calc(env(safe-area-inset-bottom,16px) + 40px);
+min-height:56px;
+}
+.btn-hamburger{
+flex-shrink:0;
+width:52px;height:52px;
+display:flex;align-items:center;justify-content:center;
+background:var(--surface);
+border:1px solid var(--border);
+border-radius:8px;
+color:var(--text);
+font-size:1.4rem;
+cursor:pointer;
+transition:all .1s;
+}
+.btn-hamburger:active{
+background:var(--accent);
+color:var(--bg);
+border-color:var(--accent);
+transform:scale(.95);
+}
+.btn-hamburger.active{
+background:var(--accent);
+color:var(--bg);
+border-color:var(--accent);
+}
+
+.media-overlay{
+display:none;
+position:absolute;
+inset:0;
+background:rgba(10,10,15,.94);
+backdrop-filter:blur(12px);
+-webkit-backdrop-filter:blur(12px);
+border-radius:var(--radius);
+z-index:10;
+flex-direction:column;
+align-items:center;
+justify-content:flex-start;
+gap:20px;
+padding:24px 24px 80px;
+}
+.media-overlay.show{
+display:flex;
+}
+.media-dpad{
+display:grid;
+grid-template-columns:repeat(3,1fr);
+grid-template-rows:repeat(3,1fr);
+gap:10px;
+width:260px;
+height:260px;
+}
+.dpad-btn{
+display:flex;align-items:center;justify-content:center;
+background:var(--surface2);
+border:1px solid var(--border);
+border-radius:14px;
+color:var(--text);
+font-size:2.2rem;
+cursor:pointer;
+transition:all .1s;
+}
+.dpad-btn:active{
+background:var(--accent);
+color:var(--bg);
+border-color:var(--accent);
+transform:scale(.92);
+}
+.dpad-btn.empty{
+background:transparent;
+border-color:transparent;
+pointer-events:none;
+}
+.media-controls{
+display:flex;gap:12px;
+align-items:center;
+}
+.media-btn{
+width:52px;height:52px;
+display:flex;align-items:center;justify-content:center;
+background:var(--surface2);
+border:1px solid var(--border);
+border-radius:50%;
+color:var(--text);
+font-size:1.2rem;
+cursor:pointer;
+transition:all .1s;
+}
+.media-btn:active{
+background:var(--accent);
+color:var(--bg);
+border-color:var(--accent);
+transform:scale(.92);
+}
+.media-btn.play{
+width:62px;height:62px;
+font-size:1.6rem;
+background:var(--accent);
+color:#fff;
+border-color:var(--accent);
+}
+.media-btn.play:active{
+background:var(--bg);
+color:var(--accent);
+}
+.media-label{
+font-size:.65rem;
+color:var(--muted);
+font-family:'Space Mono',monospace;
+letter-spacing:1px;
+text-transform:uppercase;
+}
 </style>
 </head>
 <body>
@@ -325,55 +332,28 @@ border-color:var(--danger);
 </svg>
 <span>TOUCH AND DRAG</span>
 </div>
-<div class="two-finger-hint" id="twoFingerHint">2 FINGERS = RIGHT CLICK / SCROLL</div>
-</div>
-
-<div class="special-keys" id="specialKeys">
-<button class="key-btn media-btn" id="btnMedia">
-<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-<path stroke-linecap="round" stroke-linejoin="round" d="M8.25 3v1.5M4.5 8.25H3m18 0h-1.5M4.5 12H3m18 0h-1.5m-15 3.75H3m18 0h-1.5M8.25 19.5V21M12 3v1.5m0 15V21m3.75-18v1.5m0 15V21m-9-1.5h10.5a2.25 2.25 0 0 0 2.25-2.25V6.75a2.25 2.25 0 0 0-2.25-2.25H6.75A2.25 2.25 0 0 0 4.5 6.75v10.5a2.25 2.25 0 0 0 2.25 2.25Zm.75-12h9v9h-9v-9Z"/>
-</svg>
-</button>
-<button class="key-btn" data-key="enter">ENTER</button>
-<button class="key-btn" data-key="backspace">DEL</button>
-<button class="key-btn" data-key="tab">TAB</button>
-<button class="key-btn" data-key="esc">ESC</button>
-<button class="key-btn" data-key="space">SPACE</button>
-<button class="key-btn" data-key="up">&#9650;</button>
-<button class="key-btn" data-key="down">&#9660;</button>
-<button class="key-btn" data-key="left">&#9664;</button>
-<button class="key-btn" data-key="right">&#9654;</button>
-<button class="key-btn" data-key="ctrl">CTRL</button>
-<button class="key-btn" data-key="alt">ALT</button>
-<button class="key-btn" data-key="super">SUPER</button>
-</div>
-
+<div class="two-finger-scroll" id="scrollHint">2 FINGERS = SCROLL</div>
 <div class="media-overlay" id="mediaOverlay">
-<div class="media-menu">
-<div class="media-header">
-<span>MEDIA CONTROL</span>
-<button class="media-close" id="mediaClose">&times;</button>
-</div>
+<span class="media-label">Media Controls</span>
 <div class="media-dpad">
-<div class="dpad-btn up" data-key="up">&#9650;</div>
-<div class="dpad-btn left" data-key="left">&#9664;</div>
-<div class="dpad-btn center"></div>
-<div class="dpad-btn right" data-key="right">&#9654;</div>
-<div class="dpad-btn down" data-key="down">&#9660;</div>
+<div class="dpad-btn empty"></div>
+<button class="dpad-btn" data-media="up">&#9650;</button>
+<div class="dpad-btn empty"></div>
+<button class="dpad-btn" data-media="left">&#9664;</button>
+<div class="dpad-btn empty"></div>
+<button class="dpad-btn" data-media="right">&#9654;</button>
+<div class="dpad-btn empty"></div>
+<button class="dpad-btn" data-media="down">&#9660;</button>
+<div class="dpad-btn empty"></div>
 </div>
 <div class="media-controls">
-<button class="ctrl-btn" data-key="prev">&#9198;</button>
-<button class="ctrl-btn" data-key="rewind">&#9194;</button>
-<button class="ctrl-btn play" data-key="playpause">&#9654;&#10073;&#10073;</button>
-<button class="ctrl-btn" data-key="forward">&#9193;</button>
-<button class="ctrl-btn" data-key="next">&#9197;</button>
+<button class="media-btn" data-media="prev">&#9198;</button>
+<button class="media-btn play" data-media="play">&#9654;</button>
+<button class="media-btn" data-media="next">&#9197;</button>
+<button class="media-btn" data-media="voldown">&#128266;</button>
+<button class="media-btn" data-media="volup">&#128265;</button>
 </div>
-<div class="media-controls" style="margin-top:12px">
-<button class="ctrl-btn" data-key="mute">&#128263;</button>
-<button class="ctrl-btn" data-key="voldn">&#8722;</button>
-<button class="ctrl-btn" data-key="volup">&#43;</button>
-<button class="ctrl-btn" data-key="stop">&#9632;</button>
-</div>
+<span class="media-label">tap hamburger to close</span>
 </div>
 </div>
 
@@ -392,17 +372,31 @@ R
 </button>
 </div>
 
+<div class="bottom-bar" id="specialKeys">
+<button class="btn-hamburger" id="btnHamburger">&#9776;</button>
+<button class="key-btn" data-key="enter">ENTER</button>
+<button class="key-btn" data-key="backspace">DEL</button>
+<button class="key-btn" data-key="tab">TAB</button>
+<button class="key-btn" data-key="esc">ESC</button>
+<button class="key-btn" data-key="space">SPACE</button>
+<button class="key-btn" data-key="up">&#9650;</button>
+<button class="key-btn" data-key="down">&#9660;</button>
+<button class="key-btn" data-key="left">&#9664;</button>
+<button class="key-btn" data-key="right">&#9654;</button>
+<button class="key-btn" data-key="ctrl">CTRL</button>
+<button class="key-btn" data-key="alt">ALT</button>
+<button class="key-btn" data-key="super">SUPER</button>
+</div>
+<div class="bottom-spacer"></div>
+
 <script>
 const wsUrl = `ws://${location.host}/ws`;
 let ws = null;
 let lastTouch = null;
 let touchOrigin = null;
-let isDragging = false;
-let lastTapTime = 0;
-let pendingDrag = false;
-let twoFingerMoved = false;
-let twoFingerStart = false;
+let lastTwoFingerY = null;
 let sensitivity = 1.5;
+let lastTapTime = 0;
 let hintHidden = false;
 let prevInputText = '';
 
@@ -428,96 +422,42 @@ connect();
 
 const trackpad = document.getElementById('trackpad');
 const trackpadHint = document.getElementById('trackpadHint');
-const twoFingerHint = document.getElementById('twoFingerHint');
-const mediaOverlay = document.getElementById('mediaOverlay');
-const btnMedia = document.getElementById('btnMedia');
-const mediaClose = document.getElementById('mediaClose');
-const mediaDpad = document.querySelector('.media-dpad');
-const mediaControls = document.querySelectorAll('.media-controls .ctrl-btn');
-
-btnMedia.addEventListener('click', () => {
-    mediaOverlay.classList.add('show');
-    btnMedia.classList.add('active');
-});
-
-mediaClose.addEventListener('click', () => {
-    mediaOverlay.classList.remove('show');
-    btnMedia.classList.remove('active');
-});
-
-mediaOverlay.addEventListener('click', (e) => {
-    if (e.target === mediaOverlay) {
-        mediaOverlay.classList.remove('show');
-        btnMedia.classList.remove('active');
-    }
-});
-
-mediaDpad.querySelectorAll('.dpad-btn[data-key]').forEach(btn => {
-    btn.addEventListener('click', () => {
-        send({ type: 'media_key', key: btn.dataset.key });
-    });
-});
-
-mediaControls.forEach(btn => {
-    btn.addEventListener('click', () => {
-        send({ type: 'media_key', key: btn.dataset.key });
-    });
-});
+const scrollHint = document.getElementById('scrollHint');
 
 trackpad.addEventListener('touchstart', (e) => {
+    if (mediaOverlay.classList.contains('show')) return;
     e.preventDefault();
     if (!hintHidden) {
         trackpadHint.classList.add('hidden');
         hintHidden = true;
     }
     if (e.touches.length === 2) {
-        twoFingerMoved = false;
-        twoFingerStart = true;
-        const t0 = e.touches[0];
-        const t1 = e.touches[1];
-        touchOrigin = {
-            x: (t0.clientX + t1.clientX) / 2,
-            y: (t0.clientY + t1.clientY) / 2
-        };
-        lastTouch = { x: touchOrigin.x, y: touchOrigin.y };
-        twoFingerHint.classList.add('show');
-        return;
-    }
-    twoFingerStart = false;
-    if (e.touches.length === 1) {
-        const now = Date.now();
-        const isRapidSecondTap = (now - lastTapTime < 400);
-        touchOrigin = { x: e.touches[0].clientX, y: e.touches[0].clientY };
-        lastTouch = { x: e.touches[0].clientX, y: e.touches[0].clientY };
-        isDragging = false;
-        if (isRapidSecondTap) {
-            send({ type: 'mousedown', button: 'left' });
-            isDragging = true;
-        }
-    }
+        scrollHint.classList.add('show');
+        lastTwoFingerY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+        lastTouch = null;
+return;
+}
+touchOrigin = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+lastTouch = e.touches[0];
 }, { passive: false });
 
 trackpad.addEventListener('touchmove', (e) => {
     e.preventDefault();
     if (e.touches.length === 2) {
-        twoFingerMoved = true;
-        const t0 = e.touches[0];
-        const t1 = e.touches[1];
-        const currentX = (t0.clientX + t1.clientX) / 2;
-        const currentY = (t0.clientY + t1.clientY) / 2;
-        const dx = (currentX - lastTouch.x) * sensitivity;
-        const dy = (currentY - lastTouch.y) * sensitivity;
-        if (Math.abs(dx) > 0.5 || Math.abs(dy) > 0.5) {
-            send({ type: 'scroll', dy: dy > 0 ? -1 : 1 });
+        const currentY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+        if (lastTwoFingerY !== null) {
+            const dy = (currentY - lastTwoFingerY) * sensitivity;
+            if (Math.abs(dy) > 1) {
+                send({ type: 'scroll', dy: dy > 0 ? -1 : 1 });
+            }
         }
-        lastTouch = { x: currentX, y: currentY };
+        lastTwoFingerY = currentY;
         return;
     }
     if (e.touches.length === 1 && lastTouch) {
-        const dx = (e.touches[0].clientX - lastTouch.x) * sensitivity;
-        const dy = (e.touches[0].clientY - lastTouch.y) * sensitivity;
+        const dx = (e.touches[0].clientX - lastTouch.clientX) * sensitivity;
+        const dy = (e.touches[0].clientY - lastTouch.clientY) * sensitivity;
         if (Math.abs(dx) > 0.5 || Math.abs(dy) > 0.5) {
-            isDragging = true;
             send({ type: 'mousemove', dx, dy });
             const rect = trackpad.getBoundingClientRect();
             const tx = ((e.touches[0].clientX - rect.left) / rect.width) * 100;
@@ -526,44 +466,40 @@ trackpad.addEventListener('touchmove', (e) => {
             trackpad.style.setProperty('--ty', ty + '%');
         }
     }
-    lastTouch = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+    lastTouch = e.touches[0];
 }, { passive: false });
 
 trackpad.addEventListener('touchend', (e) => {
     e.preventDefault();
     if (e.touches.length === 0) {
-        twoFingerHint.classList.remove('show');
-        if (isDragging) {
-            send({ type: 'mouseup', button: 'left' });
-            isDragging = false;
-        } else if (twoFingerStart && !twoFingerMoved) {
-            send({ type: 'click', button: 'right' });
-        } else if (lastTouch && touchOrigin) {
-            const dist = Math.abs(lastTouch.x - touchOrigin.x) + Math.abs(lastTouch.y - touchOrigin.y);
+        scrollHint.classList.remove('show');
+        lastTwoFingerY = null;
+if (lastTouch) {
+const now = Date.now();
+const rect = trackpad.getBoundingClientRect();
+const dist = Math.abs(e.changedTouches[0].clientX - touchOrigin.x) +
+Math.abs(e.changedTouches[0].clientY - touchOrigin.y);
             if (dist < 10) {
-                lastTapTime = Date.now();
-                send({ type: 'click', button: 'left' });
+                if (now - lastTapTime < 300) {
+                    send({ type: 'dblclick', button: 'left' });
+                    lastTapTime = 0;
+                } else {
+                    lastTapTime = now;
+                    setTimeout(() => {
+                        if (lastTapTime === now) {
+                            send({ type: 'click', button: 'left' });
+                        }
+                    }, 300);
+                }
             }
-        }
-twoFingerStart = false;
-      twoFingerMoved = false;
-      touchOrigin = null;
-        lastTouch = null;
+}
+touchOrigin = null;
+lastTouch = null;
     } else if (e.touches.length === 1) {
-        if (isDragging) {
-            send({ type: 'mouseup', button: 'left' });
-            isDragging = false;
-        }
-        touchOrigin = { x: e.touches[0].clientX, y: e.touches[0].clientY };
-        lastTouch = { x: e.touches[0].clientX, y: e.touches[0].clientY };
-    } else if (e.touches.length === 2) {
-        if (!twoFingerMoved) {
-            send({ type: 'click', button: 'right' });
-        }
-        const t0 = e.touches[0];
-        const t1 = e.touches[1];
-        touchOrigin = { x: (t0.clientX + t1.clientX) / 2, y: (t0.clientY + t1.clientY) / 2 };
-        lastTouch = { x: touchOrigin.x, y: touchOrigin.y };
+scrollHint.classList.remove('show');
+lastTwoFingerY = null;
+touchOrigin = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+lastTouch = e.touches[0];
     }
 }, { passive: false });
 
@@ -626,13 +562,44 @@ textInput.addEventListener('keydown', (e) => {
 
 document.getElementById('specialKeys').addEventListener('click', (e) => {
     const btn = e.target.closest('.key-btn');
-    if (!btn || btn.id === 'btnMedia') return;
+    if (!btn) return;
     const key = btn.dataset.key;
     if (key) send({ type: 'special_key', key });
 });
 
 document.getElementById('btnLogout').addEventListener('click', () => {
     window.location.href = '/auth/logout';
+});
+
+const btnHamburger = document.getElementById('btnHamburger');
+const mediaOverlay = document.getElementById('mediaOverlay');
+
+btnHamburger.addEventListener('touchstart', (e) => {
+    e.preventDefault();
+    mediaOverlay.classList.toggle('show');
+    btnHamburger.classList.toggle('active');
+}, { passive: false });
+
+btnHamburger.addEventListener('click', (e) => {
+    e.preventDefault();
+    mediaOverlay.classList.toggle('show');
+    btnHamburger.classList.toggle('active');
+});
+
+mediaOverlay.addEventListener('touchstart', (e) => {
+    const btn = e.target.closest('[data-media]');
+    if (btn) {
+        e.preventDefault();
+        send({ type: 'special_key', key: btn.dataset.media });
+    }
+}, { passive: false });
+
+mediaOverlay.addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-media]');
+    if (btn) {
+        e.preventDefault();
+        send({ type: 'special_key', key: btn.dataset.media });
+    }
 });
 
 textInput.addEventListener('blur', () => {
