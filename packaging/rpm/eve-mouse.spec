@@ -37,15 +37,17 @@ cp packaging/eve-mouse.desktop %{buildroot}/usr/share/applications/com.eve.mouse
 mkdir -p %{buildroot}/usr/share/icons/hicolor/256x256/apps
 cp app/static/icons/com.eve.mouse.png %{buildroot}/usr/share/icons/hicolor/256x256/apps/com.eve.mouse.png
 
-%post
-bash /opt/eve-mouse/../../usr/bin/eve-mouse-postinstall 2>/dev/null || bash %{_datadir}/eve-mouse/postinstall.sh 2>/dev/null || true
-
 mkdir -p %{buildroot}/usr/share/eve-mouse
-cp packaging/postinstall.sh %{buildroot}%{_datadir}/eve-mouse/postinstall.sh
-cp packaging/prerm.sh %{buildroot}%{_datadir}/eve-mouse/prerm.sh
+cp packaging/postinstall.sh %{buildroot}/usr/share/eve-mouse/postinstall.sh
+cp packaging/prerm.sh %{buildroot}/usr/share/eve-mouse/prerm.sh
+chmod 755 %{buildroot}/usr/share/eve-mouse/postinstall.sh
+chmod 755 %{buildroot}/usr/share/eve-mouse/prerm.sh
+
+%post
+bash %{_datadir}/eve-mouse/postinstall.sh || true
 
 %postun
-bash %{_datadir}/eve-mouse/prerm.sh remove 2>/dev/null || true
+bash %{_datadir}/eve-mouse/prerm.sh remove || true
 
 %files
 /opt/eve-mouse/
