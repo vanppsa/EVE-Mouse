@@ -6,10 +6,10 @@ from pathlib import Path
 
 import gi
 gi.require_version("Gtk", "4.0")
-from gi.repository import Gtk, Gdk, Gio, GLib, Pango
+from gi.repository import Gtk, Gdk, Gio, GLib, Pango  # noqa: E402
 
-from app.config import load_config, save_config, get_url
-from app import auth, input_ctrl
+from app.config import load_config, save_config, get_url  # noqa: E402
+from app import auth, input_ctrl  # noqa: E402
 
 logger = logging.getLogger("eve mouse")
 
