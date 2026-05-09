@@ -39,12 +39,13 @@ jobs:
           VERSION="${{ steps.version.outputs.version }}"
           sed "s/__VERSION__/${VERSION}/g" packaging/rpm/eve-mouse.spec > /tmp/eve-mouse.spec
           rpmbuild -bb /tmp/eve-mouse.spec
+          cp ~/rpmbuild/RPMS/noarch/*.rpm "${GITHUB_WORKSPACE}/"
 
       - name: Upload RPM artifact
         uses: actions/upload-artifact@v4
         with:
           name: rpm-package
-          path: /root/rpmbuild/RPMS/noarch/*.rpm
+          path: ./*.rpm
 
   build-deb:
     runs-on: ubuntu-latest
