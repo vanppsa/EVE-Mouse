@@ -15,5 +15,7 @@ Thumbs.db
 .idea/
 .vscode/
 *.tar.gz
+*.rpm
+*.deb
 com.eve.mouse.desktop
 .ai-jail

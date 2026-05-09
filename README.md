@@ -48,7 +48,39 @@ Unlike other solutions, EVE Mouse uses `/dev/uinput` at the kernel level, ensuri
 
 ## Installation
 
-### Option 1: Standard Make (Recommended)
+### Option 1: Pre-built Packages (Recommended)
+
+Download the latest package for your distribution from [Releases](https://github.com/vanppsa/EVE-Mouse/releases).
+
+#### Fedora / RHEL / openSUSE
+
+```bash
+sudo dnf install ./eve-mouse-*.rpm
+```
+
+Or double-click the `.rpm` file to install via GNOME Software.
+
+#### Ubuntu / Debian / Mint
+
+```bash
+sudo dpkg -i ./eve-mouse_*_all.deb
+sudo apt install -f
+```
+
+Or double-click the `.deb` file to install via Software Center.
+
+#### Arch Linux / Manjaro
+
+```bash
+tar xzf arch-pkgbuild.tar.gz
+makepkg -si
+```
+
+> **First-time setup:** After installing, **log out and log back in** for the `input` group to take effect. The post-install script automatically configures the Python environment, udev rule, and ydotool service.
+
+---
+
+### Option 2: Standard Make
 
 Single command that handles everything:
 
@@ -248,7 +280,17 @@ EVE-Mouse/
 ├── EVE Mouse.gif                     # Demo GIF
 ├── com.eve.mouse.desktop.template    # GNOME desktop entry template
 ├── 99-eve-mouse-uinput.rules         # Udev rule for /dev/uinput
-├── .github/workflows/ci.yml          # GitHub Actions CI
+├── .github/workflows/
+│   ├── ci.yml                         # CI: lint + tests
+│   └── release.yml                    # Build & publish packages on tag
+├── packaging/
+│   ├── eve-mouse.sh                   # Launcher script (shared)
+│   ├── eve-mouse.desktop              # GNOME desktop entry
+│   ├── postinstall.sh                 # Post-install setup (venv, udev, ydotool)
+│   ├── prerm.sh                       # Pre-remove cleanup
+│   ├── rpm/eve-mouse.spec             # RPM spec file
+│   ├── deb/build-deb.sh              # DEB build script
+│   └── arch/PKGBUILD                  # Arch Linux build script
 ├── app/
 │   ├── __init__.py                   # Global singletons (auth, input_ctrl)
 │   ├── gui.py                        # GTK4 window + server lifecycle
