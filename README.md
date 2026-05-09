@@ -7,6 +7,10 @@
 
 Unlike other solutions, EVE Mouse uses `/dev/uinput` at the kernel level, ensuring full compatibility with both **X11** and the modern **Wayland** display server (default in Fedora/GNOME).
 
+<p align="center">
+  <img src="EVE%20Mouse.gif" alt="EVE Mouse Demo" width="300">
+</p>
+
 ---
 
 ## Features
@@ -44,7 +48,68 @@ Unlike other solutions, EVE Mouse uses `/dev/uinput` at the kernel level, ensuri
 
 ## Installation
 
-### Quick Install (Recommended)
+### Option 1: Pre-built Packages (Recommended)
+
+Download the latest package for your distribution from [Releases](https://github.com/vanppsa/EVE-Mouse/releases).
+
+#### Fedora / RHEL / openSUSE
+
+```bash
+sudo dnf install ./eve-mouse-*.rpm
+```
+
+Or double-click the `.rpm` file to install via GNOME Software.
+
+#### Ubuntu / Debian / Mint
+
+```bash
+sudo dpkg -i ./eve-mouse_*_all.deb
+sudo apt install -f
+```
+
+Or double-click the `.deb` file to install via Software Center.
+
+#### Arch Linux / Manjaro
+
+```bash
+tar xzf arch-pkgbuild.tar.gz
+makepkg -si
+```
+
+> **First-time setup:** After installing, **log out and log back in** for the `input` group to take effect. The post-install script automatically configures the Python environment, udev rule, and ydotool service.
+
+---
+
+### Option 2: Standard Make
+
+Single command that handles everything:
+
+```bash
+git clone https://github.com/vanppsa/EVE-Mouse.git
+cd EVE-Mouse
+make install
+```
+
+Alternatively, you can run the setup script directly:
+```bash
+chmod +x setup.sh
+./setup.sh
+```
+
+The installer automatically:
+- Detects your Linux distribution
+- Installs system dependencies
+- Configures `/dev/uinput` udev rule
+- Adds your user to the `input` group
+- Enables ydotool service
+- Creates Python virtual environment
+- Runs the desktop entry installer
+
+> **Note:** You may need to log out and back in after setup if it's your first time in the `input` group.
+
+---
+
+### Option 2: Install Script
 
 ```bash
 git clone https://github.com/vanppsa/EVE-Mouse.git
@@ -52,15 +117,13 @@ cd EVE-Mouse
 ./install.sh
 ```
 
-The `install.sh` script automatically detects your distribution and handles:
-- System dependency installation
-- `/dev/uinput` udev rule setup
-- `input` group configuration
-- `ydotool` user service
-- Python virtual environment (with `--system-site-packages` for PyGObject)
-- GNOME desktop entry
+Same as option 1, but splits the process into two steps.
 
-### Manual Installation (Fedora 44 Workstation)
+---
+
+### Option 3: Manual Step by Step
+
+For users who want to understand each step or troubleshoot.
 
 #### 1. System Dependencies
 
@@ -88,15 +151,11 @@ sudo usermod -aG input $USER
 
 #### 3. Configure ydotool (Wayland support)
 
-Fedora uses Wayland by default. `ydotool` is required for text input on Wayland:
-
 ```bash
 systemctl --user enable --now ydotool.service
 ```
 
 #### 4. Python Environment
-
-The virtual environment uses `--system-site-packages` so that PyGObject (GTK4 bindings) is provided by the system package, not pip:
 
 ```bash
 git clone https://github.com/vanppsa/EVE-Mouse.git
@@ -111,9 +170,11 @@ pip install -r requirements.txt
 To launch EVE Mouse from your GNOME application menu:
 
 ```bash
-mkdir -p ~/.local/share/applications
+mkdir -p ~/.local/share/applications ~/.local/share/icons/hicolor/256x256/apps
+cp app/static/icons/com.eve.mouse.png ~/.local/share/icons/hicolor/256x256/apps/
 sed -e "s|__PYTHON__|$(pwd)/venv/bin/python|g" \
     -e "s|__INSTALL_DIR__|$(pwd)|g" \
+    -e "s|__ICON_NAME__|~/.local/share/icons/hicolor/256x256/apps/com.eve.mouse.png|g" \
     com.eve.mouse.desktop.template > ~/.local/share/applications/com.eve.mouse.desktop
 ```
 
@@ -147,7 +208,7 @@ systemctl --user enable --now ydotool.service
 #### Arch Linux / Manjaro
 
 ```bash
-sudo pacman -S python-gobject gtk4 ydotool python-virtualenv
+sudo pacman -S --needed python-gobject gtk4 ydotool python-virtualenv
 sudo usermod -aG input $USER
 systemctl --user enable --now ydotool.service
 ```
@@ -155,7 +216,7 @@ systemctl --user enable --now ydotool.service
 #### openSUSE Tumbleweed
 
 ```bash
-sudo zypper install python3-gobject python3-venv gtk4 ydotool
+sudo zypper install -y python3-gobject python3-venv gtk4 ydotool
 sudo usermod -aG input $USER
 systemctl --user enable --now ydotool.service
 ```
@@ -212,21 +273,36 @@ Phone Browser ──WebSocket──> FastAPI Server ──> InputController
 
 ```
 EVE-Mouse/
-├── main.py                          # Entry point
-├── install.sh                       # Automated installer
-├── requirements.txt                 # Python dependencies (pip)
-├── com.eve.mouse.desktop.template   # GNOME desktop entry template
-├── 99-eve-mouse-uinput.rules        # Udev rule for /dev/uinput
+├── main.py                           # Entry point
+├── setup.sh                          # One-command setup script
+├── install.sh                        # Desktop entry + icon installer
+├── requirements.txt                  # Python dependencies (pip)
+├── EVE Mouse.gif                     # Demo GIF
+├── com.eve.mouse.desktop.template    # GNOME desktop entry template
+├── 99-eve-mouse-uinput.rules         # Udev rule for /dev/uinput
+├── .github/workflows/
+│   ├── ci.yml                         # CI: lint + tests
+│   └── release.yml                    # Build & publish packages on tag
+├── packaging/
+│   ├── eve-mouse.sh                   # Launcher script (shared)
+│   ├── eve-mouse.desktop              # GNOME desktop entry
+│   ├── postinstall.sh                 # Post-install setup (venv, udev, ydotool)
+│   ├── prerm.sh                       # Pre-remove cleanup
+│   ├── rpm/eve-mouse.spec             # RPM spec file
+│   ├── deb/build-deb.sh              # DEB build script
+│   └── arch/PKGBUILD                  # Arch Linux build script
 ├── app/
-│   ├── __init__.py                  # Global singletons (auth, input_ctrl)
-│   ├── gui.py                       # GTK4 window + server lifecycle
-│   ├── server.py                    # FastAPI backend + WebSocket handler
-│   ├── input_controller.py          # Input injection (evdev/ydotool/wtype)
-│   ├── auth.py                      # Session management + bcrypt auth
-│   ├── config.py                    # Configuration persistence (~/.config/EVE Mouse/)
+│   ├── __init__.py                   # Global singletons (auth, input_ctrl)
+│   ├── gui.py                        # GTK4 window + server lifecycle
+│   ├── server.py                     # FastAPI backend + WebSocket handler
+│   ├── input_controller.py           # Input injection (evdev/ydotool/wtype)
+│   ├── auth.py                       # Session management + bcrypt auth
+│   ├── config.py                     # Configuration persistence (~/.config/EVE Mouse/)
 │   └── static/
-│       ├── index.html               # Mobile trackpad interface
-│       └── login.html               # Mobile login page
+│       ├── index.html                # Mobile trackpad interface
+│       ├── login.html                # Mobile login page
+│       └── icons/
+│           └── com.eve.mouse.png     # Application icon
 ```
 
 ---

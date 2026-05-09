@@ -1,0 +1,147 @@
+name: Build & Release Packages
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  build-rpm:
+    runs-on: ubuntu-latest
+    container: fedora:latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install build tools
+        run: dnf install -y rpm-build
+
+      - name: Extract version
+        id: version
+        run: |
+          TAG="${GITHUB_REF_NAME}"
+          VERSION="${TAG#v}"
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+
+      - name: Prepare source
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          mkdir -p ~/rpmbuild/SOURCES
+          mkdir -p /tmp/eve-mouse-${VERSION}
+          cp -r app main.py requirements.txt 99-eve-mouse-uinput.rules packaging /tmp/eve-mouse-${VERSION}/
+          cd /tmp
+          tar czf ~/rpmbuild/SOURCES/eve-mouse-${VERSION}.tar.gz eve-mouse-${VERSION}
+
+      - name: Build RPM
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          sed "s/__VERSION__/${VERSION}/g" packaging/rpm/eve-mouse.spec > /tmp/eve-mouse.spec
+          rpmbuild -bb /tmp/eve-mouse.spec
+
+      - name: Upload RPM artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: rpm-package
+          path: /root/rpmbuild/RPMS/noarch/*.rpm
+
+  build-deb:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Extract version
+        id: version
+        run: |
+          TAG="${GITHUB_REF_NAME}"
+          VERSION="${TAG#v}"
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+
+      - name: Build DEB
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          bash packaging/deb/build-deb.sh "${VERSION}"
+
+      - name: Upload DEB artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: deb-package
+          path: ./*.deb
+
+  build-arch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Extract version
+        id: version
+        run: |
+          TAG="${GITHUB_REF_NAME}"
+          VERSION="${TAG#v}"
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+
+      - name: Prepare PKGBUILD
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          mkdir -p /tmp/arch-package
+          sed "s/__VERSION__/${VERSION}/g" packaging/arch/PKGBUILD > /tmp/arch-package/PKGBUILD
+          tar czf arch-pkgbuild.tar.gz -C /tmp/arch-package PKGBUILD
+
+      - name: Upload Arch artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: arch-package
+          path: arch-pkgbuild.tar.gz
+
+  release:
+    needs: [build-rpm, build-deb, build-arch]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: List artifacts
+        run: find artifacts -type f | sort
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: EVE Mouse ${{ github.ref_name }}
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+          files: |
+            artifacts/rpm-package/*.rpm
+            artifacts/deb-package/*.deb
+            artifacts/arch-package/*.tar.gz
+          body: |
+            ## Installation
+
+            ### Fedora / RHEL
+            ```bash
+            sudo dnf install ./eve-mouse-*.rpm
+            ```
+
+            ### Ubuntu / Debian / Mint
+            ```bash
+            sudo dpkg -i ./eve-mouse_*_all.deb
+            sudo apt install -f
+            ```
+
+            ### Arch Linux
+            ```bash
+            tar xzf arch-pkgbuild.tar.gz
+            makepkg -si
+            ```
+
+            ### First-time setup
+            After installing, **log out and log back in** for the `input` group to take effect.
+
+            The post-install script automatically configures:
+            - Python virtual environment with dependencies
+            - udev rule for `/dev/uinput` access
+            - ydotool user service
