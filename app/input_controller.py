@@ -42,6 +42,14 @@ SPECIAL_KEY_MAP = {
     "f10": e.KEY_F10,
     "f11": e.KEY_F11,
     "f12": e.KEY_F12,
+    "play": e.KEY_PLAYPAUSE,
+    "pause": e.KEY_PLAYPAUSE,
+    "next": e.KEY_NEXTSONG,
+    "prev": e.KEY_PREVIOUSSONG,
+    "stop": e.KEY_STOPCD,
+    "voldown": e.KEY_VOLUMEDOWN,
+    "volup": e.KEY_VOLUMEUP,
+    "mute": e.KEY_MUTE,
 }
 
 

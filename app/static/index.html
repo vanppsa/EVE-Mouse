@@ -125,38 +125,10 @@ letter-spacing:.5px;
 }
 .two-finger-scroll.show{opacity:.3}
 
-.special-keys{
-flex-shrink:0;
-display:flex;gap:6px;
-padding:6px 12px;
-overflow-x:auto;
--webkit-overflow-scrolling:touch;
-}
-.special-keys::-webkit-scrollbar{display:none}
-.key-btn{
-flex-shrink:0;
-padding:8px 14px;
-background:var(--surface);
-border:1px solid var(--border);
-border-radius:8px;
-color:var(--text);
-font-size:.72rem;font-family:'Space Mono',monospace;
-cursor:pointer;
-transition:all .1s;
-letter-spacing:.3px;
-}
-.key-btn:active{
-background:var(--accent);
-color:var(--bg);
-border-color:var(--accent);
-transform:scale(.95);
-}
-
 .bottom-buttons{
 flex-shrink:0;
 display:flex;gap:8px;
-padding:8px 12px 16px;
-padding-bottom:max(16px,env(safe-area-inset-bottom));
+padding:8px 12px;
 }
 .btn-click{
 flex:1;
@@ -186,6 +158,160 @@ border-color:#ff446633;
 background:var(--danger);
 border-color:var(--danger);
 }
+
+.special-keys{
+flex-shrink:0;
+display:flex;gap:6px;
+padding:6px 12px;
+overflow-x:auto;
+-webkit-overflow-scrolling:touch;
+}
+.special-keys::-webkit-scrollbar{display:none}
+.key-btn{
+flex-shrink:0;
+padding:12px 18px;
+background:var(--surface);
+border:1px solid var(--border);
+border-radius:8px;
+color:var(--text);
+font-size:.85rem;font-family:'Space Mono',monospace;
+cursor:pointer;
+transition:all .1s;
+letter-spacing:.3px;
+}
+.key-btn:active{
+background:var(--accent);
+color:var(--bg);
+border-color:var(--accent);
+transform:scale(.95);
+}
+
+.bottom-bar{
+flex-shrink:0;
+display:flex;
+align-items:center;
+gap:8px;
+padding:8px 12px;
+overflow-x:auto;
+-webkit-overflow-scrolling:touch;
+scrollbar-width:none;
+}
+.bottom-bar::-webkit-scrollbar{display:none}
+.bottom-spacer{
+flex-shrink:0;
+height:calc(env(safe-area-inset-bottom,16px) + 40px);
+min-height:56px;
+}
+.btn-hamburger{
+flex-shrink:0;
+width:52px;height:52px;
+display:flex;align-items:center;justify-content:center;
+background:var(--surface);
+border:1px solid var(--border);
+border-radius:8px;
+color:var(--text);
+font-size:1.4rem;
+cursor:pointer;
+transition:all .1s;
+}
+.btn-hamburger:active{
+background:var(--accent);
+color:var(--bg);
+border-color:var(--accent);
+transform:scale(.95);
+}
+.btn-hamburger.active{
+background:var(--accent);
+color:var(--bg);
+border-color:var(--accent);
+}
+
+.media-overlay{
+display:none;
+position:absolute;
+inset:0;
+background:rgba(10,10,15,.94);
+backdrop-filter:blur(12px);
+-webkit-backdrop-filter:blur(12px);
+border-radius:var(--radius);
+z-index:10;
+flex-direction:column;
+align-items:center;
+justify-content:flex-start;
+gap:20px;
+padding:24px 24px 80px;
+}
+.media-overlay.show{
+display:flex;
+}
+.media-dpad{
+display:grid;
+grid-template-columns:repeat(3,1fr);
+grid-template-rows:repeat(3,1fr);
+gap:10px;
+width:260px;
+height:260px;
+}
+.dpad-btn{
+display:flex;align-items:center;justify-content:center;
+background:var(--surface2);
+border:1px solid var(--border);
+border-radius:14px;
+color:var(--text);
+font-size:2.2rem;
+cursor:pointer;
+transition:all .1s;
+}
+.dpad-btn:active{
+background:var(--accent);
+color:var(--bg);
+border-color:var(--accent);
+transform:scale(.92);
+}
+.dpad-btn.empty{
+background:transparent;
+border-color:transparent;
+pointer-events:none;
+}
+.media-controls{
+display:flex;gap:12px;
+align-items:center;
+}
+.media-btn{
+width:52px;height:52px;
+display:flex;align-items:center;justify-content:center;
+background:var(--surface2);
+border:1px solid var(--border);
+border-radius:50%;
+color:var(--text);
+font-size:1.2rem;
+cursor:pointer;
+transition:all .1s;
+}
+.media-btn:active{
+background:var(--accent);
+color:var(--bg);
+border-color:var(--accent);
+transform:scale(.92);
+}
+.media-btn.play{
+width:62px;height:62px;
+font-size:1.6rem;
+background:var(--accent);
+color:#fff;
+border-color:var(--accent);
+}
+.media-btn.play:active{
+background:var(--bg);
+color:var(--accent);
+}
+.media-label{
+font-size:.65rem;
+color:var(--muted);
+font-family:'Space Mono',monospace;
+letter-spacing:1px;
+text-transform:uppercase;
+}
 </style>
 </head>
 <body>
@@ -207,21 +333,28 @@ border-color:var(--danger);
 <span>TOUCH AND DRAG</span>
 </div>
 <div class="two-finger-scroll" id="scrollHint">2 FINGERS = SCROLL</div>
+<div class="media-overlay" id="mediaOverlay">
+<span class="media-label">Media Controls</span>
+<div class="media-dpad">
+<div class="dpad-btn empty"></div>
+<button class="dpad-btn" data-media="up">&#9650;</button>
+<div class="dpad-btn empty"></div>
+<button class="dpad-btn" data-media="left">&#9664;</button>
+<div class="dpad-btn empty"></div>
+<button class="dpad-btn" data-media="right">&#9654;</button>
+<div class="dpad-btn empty"></div>
+<button class="dpad-btn" data-media="down">&#9660;</button>
+<div class="dpad-btn empty"></div>
 </div>
-
-<div class="special-keys" id="specialKeys">
-<button class="key-btn" data-key="enter">ENTER</button>
-<button class="key-btn" data-key="backspace">DEL</button>
-<button class="key-btn" data-key="tab">TAB</button>
-<button class="key-btn" data-key="esc">ESC</button>
-<button class="key-btn" data-key="space">SPACE</button>
-<button class="key-btn" data-key="up">&#9650;</button>
-<button class="key-btn" data-key="down">&#9660;</button>
-<button class="key-btn" data-key="left">&#9664;</button>
-<button class="key-btn" data-key="right">&#9654;</button>
-<button class="key-btn" data-key="ctrl">CTRL</button>
-<button class="key-btn" data-key="alt">ALT</button>
-<button class="key-btn" data-key="super">SUPER</button>
+<div class="media-controls">
+<button class="media-btn" data-media="prev">&#9198;</button>
+<button class="media-btn play" data-media="play">&#9654;</button>
+<button class="media-btn" data-media="next">&#9197;</button>
+<button class="media-btn" data-media="voldown">&#128266;</button>
+<button class="media-btn" data-media="volup">&#128265;</button>
+</div>
+<span class="media-label">tap hamburger to close</span>
+</div>
 </div>
 
 <div class="bottom-buttons">
@@ -238,6 +371,23 @@ L
 R
 </button>
 </div>
+
+<div class="bottom-bar" id="specialKeys">
+<button class="btn-hamburger" id="btnHamburger">&#9776;</button>
+<button class="key-btn" data-key="enter">ENTER</button>
+<button class="key-btn" data-key="backspace">DEL</button>
+<button class="key-btn" data-key="tab">TAB</button>
+<button class="key-btn" data-key="esc">ESC</button>
+<button class="key-btn" data-key="space">SPACE</button>
+<button class="key-btn" data-key="up">&#9650;</button>
+<button class="key-btn" data-key="down">&#9660;</button>
+<button class="key-btn" data-key="left">&#9664;</button>
+<button class="key-btn" data-key="right">&#9654;</button>
+<button class="key-btn" data-key="ctrl">CTRL</button>
+<button class="key-btn" data-key="alt">ALT</button>
+<button class="key-btn" data-key="super">SUPER</button>
+</div>
+<div class="bottom-spacer"></div>
 
 <script>
 const wsUrl = `ws://${location.host}/ws`;
@@ -275,6 +425,7 @@ const trackpadHint = document.getElementById('trackpadHint');
 const scrollHint = document.getElementById('scrollHint');
 
 trackpad.addEventListener('touchstart', (e) => {
+    if (mediaOverlay.classList.contains('show')) return;
     e.preventDefault();
     if (!hintHidden) {
         trackpadHint.classList.add('hidden');
@@ -418,6 +569,37 @@ document.getElementById('specialKeys').addEventListener('click', (e) => {
 
 document.getElementById('btnLogout').addEventListener('click', () => {
     window.location.href = '/auth/logout';
+});
+
+const btnHamburger = document.getElementById('btnHamburger');
+const mediaOverlay = document.getElementById('mediaOverlay');
+
+btnHamburger.addEventListener('touchstart', (e) => {
+    e.preventDefault();
+    mediaOverlay.classList.toggle('show');
+    btnHamburger.classList.toggle('active');
+}, { passive: false });
+
+btnHamburger.addEventListener('click', (e) => {
+    e.preventDefault();
+    mediaOverlay.classList.toggle('show');
+    btnHamburger.classList.toggle('active');
+});
+
+mediaOverlay.addEventListener('touchstart', (e) => {
+    const btn = e.target.closest('[data-media]');
+    if (btn) {
+        e.preventDefault();
+        send({ type: 'special_key', key: btn.dataset.media });
+    }
+}, { passive: false });
+
+mediaOverlay.addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-media]');
+    if (btn) {
+        e.preventDefault();
+        send({ type: 'special_key', key: btn.dataset.media });
+    }
 });
 
 textInput.addEventListener('blur', () => {
